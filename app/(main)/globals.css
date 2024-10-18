@@ -1,0 +1,19 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  /* 添加header样式 */
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  /* 添加footer样式 */
+}
+
+/* 添加其他共享样式 */

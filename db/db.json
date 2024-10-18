@@ -1,0 +1,33 @@
+{
+    "18a522d6-e27f-44ea-b9ac-bc49a77506c5": {
+        "name": "知否知否应是绿肥红瘦",
+        "category": "影视动漫 > 电视剧",
+        "images": [
+          "https://picsum.photos/200/300",
+          "https://picsum.photos/200/300?a",
+          "https://picsum.photos/200/300?b"
+        ],
+        "tags": [
+          "剧情"
+        ],
+        "source_links": {
+          "夸克": {
+            "link": "https://picsum.photos/200/300",
+            "psw": "asd",
+            "size": "35GB"
+          }
+        },
+        "uploaded": 1727928907136,
+        "update_time": 1727928907136,
+        "introduction": "https://picsum.photos/200/300",
+        "resource_information": {
+          "a": "1"
+        },
+        "link": "https://picsum.photos/200/300",
+        "rating": 5,
+        "comments": 0,
+        "download_count": 0,
+        "download_limit": 0,
+        "other_information": {}
+      }
+}
