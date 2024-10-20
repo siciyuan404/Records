@@ -42,7 +42,7 @@ export async function GET() {
     // 查找并读取all.json文件（修改这里以匹配正确的文件路径）
     const allEntry = zipEntries.find(entry => entry.entryName.includes('json/categories.json'));
     if (!allEntry) {
-      throw new Error('在ZIP文件中未找到db.json');
+      throw new Error('在ZIP文件中未找到json/categories.json');
     }
 
     const allContent = allEntry.getData().toString('utf8');
@@ -64,4 +64,3 @@ export async function GET() {
     );
   }
 }
-
