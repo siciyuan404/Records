@@ -2,21 +2,35 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { config } from '@/appConfig';
 
-const DATA_URL = `${config.apiBaseUrl}/db.json`;
+const GITHUB_API_URL = `${config.GITHUB_API_URL}/repos/${config.GITHUB_OWNER}/${config.GITHUB_REPO}/contents/db/categories.json`;
 
 export async function GET() {
-  // 禁用缓存
   const headers = new Headers();
   headers.set('Cache-Control', 'no-store, max-age=0');
-  try {
-    const { data } = await axios.get(DATA_URL);
-    const categories = data || {};
 
-    return NextResponse.json(categories, { headers });
+  try {
+    const response = await axios.get(GITHUB_API_URL, {
+      headers: {
+        'Authorization': `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+        'User-Agent': 'Awesome-Octocat-App',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      params: {
+        ref: 'main'
+      }
+    });
+
+    if (response.status === 200) {
+      const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+      const categories = JSON.parse(content);
+      return NextResponse.json(categories, { headers });
+    } else {
+      throw new Error('GitHub API 请求失败');
+    }
   } catch (error) {
     console.error('获取分类数据时出错:', error);
     return NextResponse.json(
-      { error: '获取分类数据失败', path: DATA_URL },
+      { error: '获取分类数据失败', path: GITHUB_API_URL },
       { status: 500 }
     );
   }
