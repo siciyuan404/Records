@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 import AdmZip from 'adm-zip';
-import { config } from '@/appConfig';
 import crypto from 'crypto';
 
 const GITHUB_ZIP_URL = 'https://github.com/mxrain/404zyt/archive/refs/heads/master.zip';
