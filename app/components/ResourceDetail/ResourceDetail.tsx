@@ -83,9 +83,9 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="container mx-auto px-4 sm:px-6 py-6 sm:py-10"
+            className="container mx-auto mt-12"
         >
-            <Card className="mb-4 sm:mb-6 shadow-lg rounded-lg overflow-hidden">
+            <Card className="shadow-lg rounded-lg overflow-hidden">
                 <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
                     <CardTitle className="text-xl sm:text-2xl font-bold">{resource.name}</CardTitle>
                     <p className="mt-1 opacity-80">{resource.category}</p>
