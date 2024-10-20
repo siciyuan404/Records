@@ -135,7 +135,9 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast = Omit<ToasterToast, "id">
+type Toast = Omit<ToasterToast, "id"> & {
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+}
 
 function toast({ ...props }: Toast) {
   const id = genId()
@@ -143,9 +145,23 @@ function toast({ ...props }: Toast) {
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
-      toast: { ...props, id },
+      toast: { 
+        ...props, 
+        id,
+      },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+
+  // 添加全局点击事件监听器
+  const handleClickOutside = (event: MouseEvent) => {
+    const toastElement = document.getElementById(id);
+    if (toastElement && !toastElement.contains(event.target as Node)) {
+      dismiss();
+    }
+  };
+
+  // 绑定事件
+  document.addEventListener('click', handleClickOutside);
 
   dispatch({
     type: "ADD_TOAST",
@@ -165,6 +181,8 @@ function toast({ ...props }: Toast) {
     update,
   }
 }
+
+
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)

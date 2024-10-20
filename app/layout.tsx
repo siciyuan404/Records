@@ -17,12 +17,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className + " bg-gray-50 text-gray-900"}>  {/* 这是字体 */}
+    <html lang="zh">
+      <body className={inter.className}>
         <Providers>
+         
+          <Toaster />
           <ApiExecutor>{children}</ApiExecutor>
         </Providers>
-        <Toaster />
       </body>
     </html>
   )
