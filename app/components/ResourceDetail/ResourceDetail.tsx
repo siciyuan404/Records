@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Star, Download, MessageSquare, ExternalLink, Copy, Eye, Calendar, Link, Info, FileText, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, Download, MessageSquare, ExternalLink, Copy, Eye, Calendar, Info, Link as LinkIcon, FileText, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+
 import { motion, AnimatePresence } from 'framer-motion' // 新增：用于动画效果
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,10 +17,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Resource } from '@/app/sys/add/types'
 import { fetchResourceInfo } from '@/lib/api'
 import ResourceSkeleton from './ResourceSkeleton'
+import Link from 'next/link'
 
 interface ResourceDetailProps {
     uuid: string;
 }
+
+const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const href = e.currentTarget.href;
+    if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+        window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+    } else {
+        window.location.href = href;
+    }
+};
+
 
 export default function ResourceDetail({ uuid }: ResourceDetailProps) {
     const [resource, setResource] = useState<Resource | null>(null);
@@ -78,8 +91,19 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
             });
         }
     }
+
+    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const href = e.currentTarget.href;
+        if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+            window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+        } else {
+            window.location.href = href;
+        }
+    };
+
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -107,7 +131,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                     </div>
                 </CardHeader>
                 <CardContent className="px-3 sm:px-4 py-2 sm:py-3">
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
@@ -129,7 +153,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         </div>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}
@@ -140,7 +164,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         ))}
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.4 }}
@@ -194,7 +218,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         ))}
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
@@ -208,20 +232,56 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                 <p>更新时间：{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</p>
                             </div>
                             <div className="flex items-center">
-                                <Link className="mr-2 text-gray-500" />
-                                <a href={resource.link} className="text-blue-500 hover:underline flex items-center">
-                                    官方链接 <ExternalLink className="h-4 w-4 ml-1" />
-                                </a>
+                                <LinkIcon className="mr-2 text-gray-500" />
+                                <p>官方地址：</p>
+                                <div className="flex justify-center">
+                                    <Link href={resource.link || '#'} onClick={handleLinkClick} className="text-blue-600 hover:underline">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <div className="flex items-center">
+                                                        {resource.link}
+                                                    </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p className="text-center">{resource.link}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </Link>
+                                </div>
                             </div>
                             {Object.entries(resource.resource_information || {}).map(([key, value]) => (
-                                <p key={key}>{key}: {value}</p>
+                                <div key={key} className="flex items-center">
+                                    <Info className="mr-2 text-gray-500" />
+                                    <span className="font-semibold mr-2 whitespace-nowrap">{key}:</span>
+                                    {typeof value === 'string' && value.startsWith('http') ? (
+                                        <Link href={value} onClick={handleLinkClick} className="text-blue-600 hover:underline">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <div className="flex items-center">
+                                                            {value}
+                                                            <LinkIcon className="ml-1 h-4 w-4" />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-center">{value}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </Link>
+                                    ) : (
+                                        <span className="whitespace-nowrap">{value}</span>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     </motion.div>
 
                     <Separator className="my-4" />
 
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 }}
@@ -234,7 +294,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
 
                     <Separator className="my-4" />
 
-                    <motion.div 
+                    <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.7 }}

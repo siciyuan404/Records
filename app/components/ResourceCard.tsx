@@ -12,8 +12,18 @@ interface ResourceCardProps {
 const ResourceCard: React.FC<ResourceCardProps> = ({ resource, uuid }) => {
   const { name, images, tags, introduction, update_time } = resource;
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const href = e.currentTarget.href;
+    if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+      window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+    } else {
+      window.location.href = href;
+    }
+  };
+
   return (
-    <Link href={`/resource/${uuid}`} className="block">
+    <Link href={`/resource/${uuid}`} onClick={handleLinkClick} className="block">
       <div className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
         {images?.[0] && (
           <div className="relative aspect-video">
@@ -40,7 +50,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, uuid }) => {
         </div>
       </div>
     </Link>
-
   );
 };
 
