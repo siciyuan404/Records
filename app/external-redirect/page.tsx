@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import ExternalLinkRedirect from '../components/ExternalLinkRedirect';
+import { Suspense } from 'react';
 
 export default function ExternalRedirectPage() {
   const searchParams = useSearchParams();
@@ -11,5 +12,9 @@ export default function ExternalRedirectPage() {
     return <div>无效的URL</div>;
   }
 
-  return <ExternalLinkRedirect href={url} />;
+  return (
+    <Suspense fallback={<div>加载中...</div>}>
+      <ExternalLinkRedirect href={url} />
+    </Suspense>
+  );
 }
