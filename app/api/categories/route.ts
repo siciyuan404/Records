@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { config } from '@/appConfig';
+import { cachedFetch } from '@/lib/cacheUtils';
 
 const GITHUB_API_URL = `${config.GITHUB_API_URL}/repos/${config.GITHUB_OWNER}/${config.GITHUB_REPO}/contents/db/categories.json`;
 
@@ -9,24 +10,27 @@ export async function GET() {
   headers.set('Cache-Control', 'no-store, max-age=0');
 
   try {
-    const response = await axios.get(GITHUB_API_URL, {
-      headers: {
-        'Authorization': `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-        'User-Agent': 'Awesome-Octocat-App',
-        'Accept': 'application/vnd.github.v3+json'
-      },
-      params: {
-        ref: 'main'
+    const categories = await cachedFetch('categories', async () => {
+      const response = await axios.get(GITHUB_API_URL, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'User-Agent': 'Awesome-Octocat-App',
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        params: {
+          ref: 'main'
+        }
+      });
+
+      if (response.status === 200) {
+        const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+        return JSON.parse(content);
+      } else {
+        throw new Error('GitHub API 请求失败');
       }
     });
 
-    if (response.status === 200) {
-      const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-      const categories = JSON.parse(content);
-      return NextResponse.json(categories, { headers });
-    } else {
-      throw new Error('GitHub API 请求失败');
-    }
+    return NextResponse.json(categories, { headers });
   } catch (error) {
     console.error('获取分类数据时出错:', error);
     return NextResponse.json(
