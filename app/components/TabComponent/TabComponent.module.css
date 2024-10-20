@@ -4,7 +4,9 @@
   justify-content: center;
   align-items: center;
   background-color: #fff;
-  margin-top:  5rem;
+  margin-top: 5rem;
+  min-height: 50px;
+  /* 添加最小高度 */
 }
 
 .tabList {
@@ -17,10 +19,14 @@
   gap: 10px;
   padding: 10px;
   text-align: center;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    scrollbar-width: none; /* 火狐浏览器隐藏滚动条 */
-    -ms-overflow-style: none; /* IE和Edge隐藏滚动条 */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  /* 火狐浏览器隐藏滚动条 */
+  -ms-overflow-style: none;
+  /* IE和Edge隐藏滚动条 */
+  min-height: 40px;
+  /* 添加最小高度 */
 }
 
 .tabItem {
@@ -92,11 +98,15 @@
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
-  scrollbar-width: none; /* 火狐浏览器隐藏滚动条 */
-  -ms-overflow-style: none; /* IE和Edge隐藏滚动条 */
-  background-color: #fff; /* 添加背景色以确保内容不会透明 */
+  scrollbar-width: none;
+  /* 火狐浏览器隐藏滚动条 */
+  -ms-overflow-style: none;
+  /* IE和Edge隐藏滚动条 */
+  background-color: #fff;
+  /* 添加背景色以确保内容不会透明 */
   padding: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 添加阴影效果以增强视觉分离 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* 添加阴影效果以增强视觉分离 */
 
 }
 
@@ -110,6 +120,7 @@
   background: #f8f8f8;
   color: #353535;
 }
+
 /* 淡入淡出动画 */
 .fadeIn {
   animation: fadeIn 120ms ease-out;
@@ -126,6 +137,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -137,6 +149,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(-10px);
@@ -147,7 +160,8 @@
 
 
 .exceedList::-webkit-scrollbar {
-  display: none; /* Chrome、Safari和Opera隐藏滚动条 */
+  display: none;
+  /* Chrome、Safari和Opera隐藏滚动条 */
 }
 
 
@@ -170,13 +184,17 @@
   gap: 10px;
   max-height: 300px;
   overflow-y: auto;
-  scrollbar-width: none; /* 火狐浏览器隐藏滚动条 */
-  -ms-overflow-style: none; /* IE和Edge隐藏滚动条 */
-  top: calc(100% + 300px);  /* 向下偏移10px */
+  scrollbar-width: none;
+  /* 火狐浏览器隐藏滚动条 */
+  -ms-overflow-style: none;
+  /* IE和Edge隐藏滚动条 */
+  top: calc(100% + 300px);
+  /* 向下偏移10px */
 }
 
 .moreModal::-webkit-scrollbar {
-  display: none; /* Chrome、Safari和Opera隐藏滚动条 */
+  display: none;
+  /* Chrome、Safari和Opera隐藏滚动条 */
 }
 
 .moreModal .tabItem {

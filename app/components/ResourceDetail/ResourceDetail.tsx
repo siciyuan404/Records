@@ -33,6 +33,14 @@ const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     }
 };
 
+// 在组件顶部添加一个新的函数来处理toast
+const showToast = (title: string, description: string) => {
+  toast({
+    title,
+    description,
+    className: "sm:max-w-[90vw] md:max-w-[350px]", // 添加这一行
+  });
+};
 
 export default function ResourceDetail({ uuid }: ResourceDetailProps) {
     const [resource, setResource] = useState<Resource | null>(null);
@@ -78,17 +86,10 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
     const copyToClipboard = async (text: string, description: string) => {
         try {
             await navigator.clipboard.writeText(text);
-            toast({
-                title: "已复制",
-                description: description,
-            });
+            showToast("已复制", description);
         } catch (err) {
             console.error('复制失败:', err);
-            toast({
-                title: "复制失败",
-                description: "请手动复制内容",
-                variant: "destructive"
-            });
+            showToast("复制失败", "请手动复制内容");
         }
     }
 
@@ -174,7 +175,8 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                             <Download className="mr-2" /> 网盘资源
                         </h3>
                         {Object.entries(resource.source_links).map(([source, info]) => (
-                            <Card key={source} className="mb-4 p-4 hover:shadow-md transition-shadow duration-300">
+                            <Card key={source} className="mb-4 p-4 transition-all duration-300 cursor-pointer border-transparent bg-gray-100 shadow-none"
+                            >
                                 <div className="flex items-center justify-between mb-2">
                                     <p className="font-medium">{source}</p>
                                     <p className="text-sm text-muted-foreground">大小：{info.size}</p>
@@ -214,6 +216,15 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                     )}
                                     <Button 
                                         onClick={() => {
+                                            copyToClipboard(`${info.link} ${info.psw ? `密码：${info.psw}` : ''}`, "分享链接已复制");
+                                        }} 
+                                        variant="outline" 
+                                        size="icon"
+                                    >
+                                        <Copy className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        onClick={() => {
                                             if (info.psw) {
                                                 copyToClipboard(info.psw, "密码已复制到剪贴板");
                                             }
@@ -240,28 +251,29 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         <h3 className="text-lg font-semibold mb-4 flex items-center">
                             <Info className="mr-2" /> 资源信息
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="flex items-center">
                                 <Calendar className="mr-2 text-gray-500" />
-                                <p>更新时间：{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</p>
+                                <span className="w-20 inline-block">更新时间：</span>
+                                <span>{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</span>
                             </div>
-                            <div className="flex items-center col-span-full">
+                            <div className="flex items-center">
                                 <LinkIcon className="mr-2 text-gray-500" />
-                                <p className="mr-2">官方地址：</p>
-                                <a href={resource.link} onClick={handleLinkClick} className="text-blue-600 hover:underline truncate">
+                                <span className="w-20 inline-block">官方地址：</span>
+                                <a href={resource.link} onClick={handleLinkClick} className="text-gray-500 hover:text-gray-700 hover:underline truncate">
                                     {resource.link}
                                 </a>
                             </div>
                             {Object.entries(resource.resource_information || {}).map(([key, value]) => (
-                                <div key={key} className="flex items-center col-span-full">
+                                <div key={key} className="flex items-center">
                                     <Info className="mr-2 text-gray-500" />
-                                    <span className="font-semibold mr-2">{key}:</span>
+                                    <span className="w-20 inline-block font-semibold">{key}：</span>
                                     {typeof value === 'string' && value.startsWith('http') ? (
-                                        <a href={value} onClick={handleLinkClick} className="text-blue-600 hover:underline truncate">
+                                        <a href={value} onClick={handleLinkClick} className="text-gray-500 hover:text-gray-700 hover:underline truncate">
                                             {value}
                                         </a>
                                     ) : (
-                                        <span>{value}</span>
+                                        <span className="text-gray-500">{value}</span>
                                     )}
                                 </div>
                             ))}
