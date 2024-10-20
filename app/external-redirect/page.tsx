@@ -1,20 +1,26 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import ExternalLinkRedirect from '../components/ExternalLinkRedirect';
-import { Suspense } from 'react';
 
 export default function ExternalRedirectPage() {
-  const searchParams = useSearchParams();
-  const url = searchParams.get('url');
+  const [url, setUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlParam = searchParams.get('url');
+    setUrl(urlParam);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return <div>加载中...</div>;
+  }
 
   if (!url) {
     return <div>无效的URL</div>;
   }
 
-  return (
-    <Suspense fallback={<div>加载中...</div>}>
-      <ExternalLinkRedirect href={url} />
-    </Suspense>
-  );
+  return <ExternalLinkRedirect href={url} />;
 }
