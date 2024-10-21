@@ -13,6 +13,71 @@
   align-items: center;
 }
 
+.socialIcons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.socialIconWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.socialIcon {
+  font-size: 1.5rem;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.socialIcon:hover {
+  color: #007bff;
+}
+
+.infoCard {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border: 1px solid #e7e7e7;
+  border-radius: 4px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s linear;
+}
+
+.socialIconWrapper:hover .infoCard {
+  visibility: visible;
+  opacity: 1;
+}
+
+.infoCard::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #e7e7e7 transparent transparent transparent;
+}
+
+.qrCode {
+  width: 100px;
+  height: 100px;
+}
+
+.copyright {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .nav {
   display: flex;
   gap: 1rem;
@@ -28,26 +93,3 @@
 .link:hover {
   color: #007bff;
 }
-
-.copyright {
-  margin-top: 1rem;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.socialIcons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.socialIcon {
-  font-size: 1.5rem;
-  color: #333;
-  transition: color 0.3s ease;
-}
-
-.socialIcon:hover {
-  color: #007bff;
-}
-
