@@ -36,8 +36,8 @@ export async function GET() {
     const zipEntries = zip.getEntries();
 
     // 打印所有文件名，以便调试
-    console.log('ZIP文件中的所有文件:');
-    zipEntries.forEach(entry => console.log(entry.entryName));
+    // console.log('ZIP文件中的所有文件:');
+    // zipEntries.forEach(entry => console.log(entry.entryName));
 
     // 查找并读取all.json文件（修改这里以匹配正确的文件路径）
     const allEntry = zipEntries.find(entry => entry.entryName.includes('db/categories.json'));
