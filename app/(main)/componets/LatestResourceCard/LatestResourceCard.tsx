@@ -17,6 +17,26 @@ interface ListItem {
     update_time: number;
 }
 
+const Skeleton: React.FC = () => {
+    return (
+        <div className={styles.itemList}>
+            {[...Array(5)].map((_, index) => (
+                <div key={index} className={`${styles.item} ${styles.skeleton}`}>
+                    <div className={styles.skeletonBackground}></div>
+                    <div className={styles.skeletonContent}>
+                        <div className={styles.skeletonTitle}></div>
+                        <div className={styles.skeletonTags}>
+                            <div className={styles.skeletonTag}></div>
+                            <div className={styles.skeletonTag}></div>
+                        </div>
+                        <div className={styles.skeletonUpdateTime}></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
 const LatestResourceCard: React.FC<LatestResourceCardProps> = ({ title }) => {
     const { data, isLoading, isError } = useGetListItemsQuery();
     
@@ -36,7 +56,12 @@ const LatestResourceCard: React.FC<LatestResourceCardProps> = ({ title }) => {
     };
 
     if (isLoading) {
-        return <div className={styles.card}>加载中...</div>;
+        return (
+            <div className={styles.card}>
+                <h2>{title}</h2>
+                <Skeleton />
+            </div>
+        );
     }
 
     if (isError) {

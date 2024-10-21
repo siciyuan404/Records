@@ -16,13 +16,35 @@ interface RevenueRankingCardProps {
     title: string;
 }
 
+const Skeleton: React.FC = () => {
+    return (
+        <ul className={styles.list}>
+            {[...Array(8)].map((_, index) => (
+                <li key={index} className={`${styles.item} ${styles.skeleton}`}>
+                    <div className={styles.skeletonTitle}></div>
+                    <div className={styles.skeletonDetails}>
+                        <div className={styles.skeletonDescription}></div>
+                        <div className={styles.skeletonRating}></div>
+                        <div className={styles.skeletonCategory}></div>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    );
+};
+
 const RevenueRankingCard: React.FC<RevenueRankingCardProps> = ({ title }) => {
     const { data, isLoading, isError } = useGetListItemsQuery();
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 8;
 
     if (isLoading) {
-        return <div className={styles.hotCard}>加载中...</div>;
+        return (
+            <div className={styles.hotCard}>
+                <h2 className={styles.title}>{title}</h2>
+                <Skeleton />
+            </div>
+        );
     }
 
     if (isError) {
@@ -31,7 +53,7 @@ const RevenueRankingCard: React.FC<RevenueRankingCardProps> = ({ title }) => {
 
     const top: TopItem[] = (data?.top || []).map(item => ({
         ...item,
-        score: (item as any).score || 0, // 使用类型断言以避免类型错误
+        score: (item as any).score || 0,
     }));
     const pageCount = Math.ceil(top.length / itemsPerPage);
 

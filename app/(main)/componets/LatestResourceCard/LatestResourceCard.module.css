@@ -167,3 +167,61 @@
         max-height: 280px;
     }
 }
+
+/* 在文件末尾添加以下样式 */
+
+.skeleton {
+    background-color: #f0f0f0;
+    animation: pulse 1.5s infinite;
+}
+
+.skeletonBackground {
+    height: 100%;
+    background-color: #e0e0e0;
+}
+
+.skeletonContent {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.skeletonTitle {
+    height: 16px;
+    width: 80%;
+    background-color: #d0d0d0;
+    margin-bottom: 5px;
+}
+
+.skeletonTags {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.skeletonTag {
+    height: 12px;
+    width: 40px;
+    background-color: #d0d0d0;
+    margin-right: 5px;
+}
+
+.skeletonUpdateTime {
+    height: 12px;
+    width: 60px;
+    background-color: #d0d0d0;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}

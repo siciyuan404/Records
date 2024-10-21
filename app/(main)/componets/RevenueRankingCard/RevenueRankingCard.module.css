@@ -174,3 +174,39 @@
 
 /* 其他样式保持不变 */
 
+/* 在文件末尾添加以下样式 */
+
+.skeleton {
+    background-color: #f0f0f0;
+    animation: pulse 1.5s infinite;
+}
+
+.skeletonTitle {
+    height: 20px;
+    width: 80%;
+    background-color: #e0e0e0;
+    margin-bottom: 10px;
+}
+
+.skeletonDetails {
+    height: 60px;
+    background-color: #e0e0e0;
+}
+
+.skeletonDescription, .skeletonRating, .skeletonCategory {
+    height: 10px;
+    background-color: #d0d0d0;
+    margin-bottom: 5px;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
