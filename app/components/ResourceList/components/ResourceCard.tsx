@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import styles from './ResourceCard.module.css';
 import { Resource } from '@/app/sys/add/types';
 
@@ -9,7 +10,9 @@ interface ResourceCardProps {
     isLoading?: boolean;
 }
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ uuid,resource, isLoading = false }) => {
+const ResourceCard: React.FC<ResourceCardProps> = ({ uuid, resource, isLoading = false }) => {
+    const [imageError, setImageError] = useState(false);
+
     if (isLoading) {
         return (
             <div className={`${styles.card} ${styles.skeleton}`}>
@@ -31,23 +34,38 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ uuid,resource, isLoading = 
     return (
         <Link href={`/resource/${uuid}`} className={styles.cardLink}>
             <div className={styles.card}>
-                <Image
-                    src={resource.images[0]}
-                    alt={resource.name}
-                    width={200}
-                    height={200}
-                    className={styles.image}
-                />
-                <h3 className={styles.title}>{resource.name}</h3>
-                <p className={styles.category}>{resource.category}</p>
-                <div className={styles.tags}>
-                    {resource.tags.map((tag: string) => (  // 添加类型注解
-                        <span key={tag} className={styles.tag}>
-                            {tag}
-                        </span>
-                    ))}
+                <div className={styles.imageContainer}>
+                    {imageError ? (
+                        <Image
+                            src="https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images"
+                            alt="默认图片"
+                            layout="fill"
+                            objectFit="cover"
+                            className={styles.image}
+                        />
+                    ) : (
+                        <Image
+                            src={resource.images[0]}
+                            alt={resource.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className={styles.image}
+                            onError={() => setImageError(true)}
+                        />
+                    )}
                 </div>
-                <p className={styles.introduction}>{resource.introduction}</p>
+                <div className={styles.content}>
+                    <h3 className={styles.title}>{resource.name}</h3>
+                    <p className={styles.category}>{resource.category}</p>
+                    <div className={styles.tags}>
+                        {resource.tags.map((tag: string) => (
+                            <span key={tag} className={styles.tag}>
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                    <p className={styles.introduction}>{resource.introduction}</p>
+                </div>
             </div>
         </Link>
     );
