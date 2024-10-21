@@ -2,31 +2,60 @@
 
 import { useEffect } from 'react';
 import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
-// import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-// import { fetchResourcesAsync } from '@/app/store/features/resources/resourcesSlice';
-// import { fetchCategoriesAsync } from '@/app/store/features/categories/categoriesSlice';
-// import { fetchList } from '@/app/store/features/list/listSlice';
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
+import { useGetListItemsQuery } from '@/app/store/api/listApi';
 
+export default function ApiExecutor() {
+  const { 
+    data: resourcesData, 
+    error: resourcesError, 
+    isLoading: isResourcesLoading 
+  } = useGetResourcesQuery();
 
-export default function ClientWrapper() {
-  const { data, error, isLoading } = useGetResourcesQuery();
+  const { 
+    data: categoriesData, 
+    error: categoriesError, 
+    isLoading: isCategoriesLoading 
+  } = useGetCategoriesQuery();
+
+  const { 
+    data: listData, 
+    error: listError, 
+    isLoading: isListLoading 
+  } = useGetListItemsQuery();
 
   useEffect(() => {
-    if (data) {
-      console.log('Resources data:', data);
+    if (resourcesData) {
+      console.log('Resources data:', resourcesData);
     }
-    if (error) {
-      console.error('Error fetching resources:', error);
+    if (categoriesData) {
+      console.log('Categories data:', categoriesData);
     }
-  }, [data, error]);
+    if (listData) {
+      console.log('List data:', listData);
+    }
+  }, [resourcesData, categoriesData, listData]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (resourcesError) {
+      console.error('Error fetching resources:', resourcesError);
+    }
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError);
+    }
+    if (listError) {
+      console.error('Error fetching list:', listError);
+    }
+  }, [resourcesError, categoriesError, listError]);
+
+  if (isResourcesLoading || isCategoriesLoading || isListLoading) {
     return <div>加载中...</div>;
   }
 
-  if (error) {
-    return <div>加载资源时出错</div>;
+  if (resourcesError || categoriesError || listError) {
+    return <div>加载数据时出错</div>;
   }
 
+  // 如果所有数据都已加载成功,可以在这里进行进一步的处理或渲染
   return null;
 }

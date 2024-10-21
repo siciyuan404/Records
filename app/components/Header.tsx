@@ -1,9 +1,12 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './Header.module.css';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/app/store/store';
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store/store';
 
 interface CategoryData {
   icon: string;
@@ -40,12 +43,16 @@ const CategoryMenu: React.FC<CategoryMenuProps> = ({ categories, depth = 0 }) =>
   );
 };
 
+
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: categories, status, error } = useSelector((state: RootState) => state.categories);
+  const { data: categories, isLoading, isError, error } = useGetCategoriesQuery();
   const [logoText, setLogoText] = useState('');
   const fullLogoText = '资源桶';
 
+  // 直接从 Redux store 中获取数据
+  const categoriesFromStore = useSelector((state: RootState) => state.categoriesApi.queries['getCategories(undefined)']?.data);
 
   // 这里处理fullLogoText是为了实现一个打字机效果的动画
   // 当组件加载时，"资源桶"这三个字会逐个显示出来，给用户一种动态的感觉
@@ -76,6 +83,14 @@ const Header: React.FC = () => {
   // 如果logoText为空，显示完整文本
   const displayLogoText = logoText || fullLogoText;
 
+  useEffect(() => {
+    console.log('Categories from query hook:', categories);
+    console.log('Categories from store:', categoriesFromStore);
+    console.log('Is loading:', isLoading);
+    console.log('Is error:', isError);
+    console.log('Error:', error);
+  }, [categories, categoriesFromStore, isLoading, isError, error]);
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -83,14 +98,19 @@ const Header: React.FC = () => {
           <span className={styles.logoText}>{displayLogoText}</span>
         </Link>
         <nav className={styles.nav}>
-          {status === 'loading' ? (
+          {isLoading ? (
             <div className={styles.skeletonContainer}>
               <Skeleton className="h-10 w-[100px]" />
               <Skeleton className="h-10 w-[100px]" />
             </div>
-          ) : status === 'failed' ? (
-            <div className={styles.errorMessage}>错误: {error}</div>
-          ) : (
+          ) : isError ? (
+            <div className={styles.errorMessage}>
+              错误: 无法加载分类
+              {error && 'status' in error && (
+                <span> (状态码: {error.status})</span>
+              )}
+            </div>
+          ) : categories && Object.keys(categories).length > 0 ? (
             <>
               <div
                 className={`${styles.menuContainer} ${styles.hideOnMobile}`}
@@ -103,17 +123,22 @@ const Header: React.FC = () => {
                     <path d="M562.5 771c-14.3 14.3-33.7 27.5-52 23.5-18.4 3.1-35.7-11.2-50-23.5L18.8 327.3c-22.4-22.4-22.4-59.2 0-81.6s59.2-22.4 81.6 0L511.5 668l412.1-422.3c22.4-22.4 59.2-22.4 81.6 0s22.4 59.2 0 81.6L562.5 771z" />
                   </svg>
                 </button>
-                {isMenuOpen && <CategoryMenu categories={categories} />}
+                {isMenuOpen && (
+                  <div className={styles.menuDropdown}>
+                    <CategoryMenu categories={categories} />
+                  </div>
+                )}
               </div>
               <Link href="https://chatbot.weixin.qq.com/webapp/zR6XpGC9NjMrGjpuuboUQACIxqCwLZ?robotName=%E8%B5%84%E6%BA%90%E6%90%9C%E7%B4%A2%E6%9C%BA%E5%99%A8%E4%BA%BA" className={`${styles.menuButton} ${styles.enhancedMenuButton}`}>
                 <span className={styles.menuText}>资源求助</span>
               </Link>
             </>
+          ) : (
+            <div className={styles.errorMessage}>没有可用的分类数据</div>
           )}
         </nav>
       </div>
     </header>
-
   );
 };
 

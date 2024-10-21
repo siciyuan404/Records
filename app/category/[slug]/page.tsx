@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useMemo } from 'react';
-import { useAppSelector } from '@/app/store/hooks';
 import ResourceCard from '@/app/components/ResourceCard';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Resource } from '@/app/sys/add/types';
 import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
+import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
 
 interface Category {
   link: string;
@@ -31,28 +32,21 @@ const findCategoryPath = (categories: Record<string, Category>, slug: string): s
 };
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const { data: categories, status: categoryStatus, error: categoryError } = useAppSelector((state) => state.categories);
-  const { data: resources, status: resourceStatus, error: resourceError } = useAppSelector((state) => state.resources);
-
-
+  const { data: categories, isLoading: isCategoriesLoading, isError: isCategoriesError } = useGetCategoriesQuery();
+  const { data: resources, isLoading: isResourcesLoading, isError: isResourcesError } = useGetResourcesQuery();
 
   const categoryPath = useMemo(() =>
-    categoryStatus === 'succeeded' ? findCategoryPath(categories, params.slug) : []
-    , [categoryStatus, categories, params.slug]);
+    categories ? findCategoryPath(categories, params.slug) : []
+    , [categories, params.slug]);
 
   const currentCategory = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1] : params.slug;
-  const currentCategoryData = categories[currentCategory] as Category | undefined;
+  const currentCategoryData = categories?.[currentCategory] as Category | undefined;
 
-  // useMemo 是 React 的一个钩子函数，用于优化性能。
-  // 它会缓存计算结果，只有当依赖项发生变化时才重新计算。
   const filteredResources = useMemo(() => {
-    if (resourceStatus !== 'succeeded' || !resources) return [];
+    if (!resources) return [];
     
     const categoryString = categoryPath.join(' > ');
 
-    // Object.entries() 是一个JavaScript内置方法，用于将一个对象转换为其可枚举属性的键值对数组。
-    // 对于resources对象，它会返回一个数组，每个元素都是一个包含两个项的数组：[key, value]
-    // 其中key是resources对象的属性名（在这里可能是资源的UUID），value是对应的资源对象
     return Object.entries(resources)
       .filter(([, resource]: [string, Resource]) =>
         resource.category === categoryString ||
@@ -60,14 +54,14 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         (categoryPath.length === 1 && resource.category.startsWith(currentCategory))
       )
       .map(([uuid, resource]) => ({ ...resource, uuid }));
-  }, [resources, categoryPath, currentCategory, resourceStatus]);
+  }, [resources, categoryPath, currentCategory]);
 
-  const showSubcategories = resourceStatus === 'succeeded' && filteredResources.length === 0 && !!currentCategoryData?.items;
+  const showSubcategories = !isResourcesLoading && filteredResources.length === 0 && !!currentCategoryData?.items;
   
-  const isLoading = categoryStatus === 'loading' || resourceStatus === 'loading';
+  const isLoading = isCategoriesLoading || isResourcesLoading;
 
-  if (categoryStatus === 'failed') return <div>错误：{categoryError}</div>;
-  if (resourceStatus === 'failed') return <div>错误：{resourceError}</div>;
+  if (isCategoriesError) return <div>加载分类时出错</div>;
+  if (isResourcesError) return <div>加载资源时出错</div>;
 
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
@@ -89,7 +83,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             </Card>
           ))}
         </div>
-      ) : resourceStatus === 'succeeded' ? (
+      ) : (
         showSubcategories ? (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">子分类：</h2>
@@ -123,8 +117,6 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             )}
           </>
         )
-      ) : (
-        <p className="text-muted-foreground">加载资源时出错。</p>
       )}
     </div>
   );

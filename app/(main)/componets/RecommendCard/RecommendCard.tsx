@@ -3,9 +3,7 @@ import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './RecommendCard.module.css';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/app/store/store';
-import { fetchList, clearListCache } from '@/app/store/features/list/listSlice';
+import { useGetListItemsQuery } from '@/app/store/api/listApi';
 
 interface SourceLink {
   link: string;
@@ -38,9 +36,8 @@ interface RecommendCardProps {
 }
 
 const RecommendCard: React.FC<RecommendCardProps> = ({ title, type }) => {
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { data, status } = useSelector((state: RootState) => state.list);
+  const { data, isLoading, isError, refetch } = useGetListItemsQuery();
 
   const [visibleItems, setVisibleItems] = useState<ListItem[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -55,13 +52,11 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ title, type }) => {
     }
   }, [currentPage, data, type]);
 
-
-
   useEffect(() => {
-    if (status === 'succeeded') {
+    if (!isLoading && !isError) {
       loadItems();
     }
-  }, [loadItems, status]);
+  }, [loadItems, isLoading, isError]);
 
   const handlePrevPage = () => {
     if (currentPage > 0) {
@@ -77,10 +72,9 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ title, type }) => {
 
   const handleRefresh = useCallback(() => {
     setCurrentPage(0);
-    dispatch(clearListCache()); // 清除 Redux 缓存
-    dispatch(fetchList()); // 重新获取数据
-    router.refresh(); // 刷新当前页面，清除 Next.js 客户端缓存
-  }, [dispatch, router]);
+    refetch();
+    router.refresh();
+  }, [refetch, router]);
 
   const renderSkeletonItems = () => {
     return Array.from({ length: itemsPerPage }, (_, index) => (
@@ -93,24 +87,21 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ title, type }) => {
   };
 
   const renderContent = () => {
-    switch (status) {
-      case 'loading':
-        return renderSkeletonItems();
-      case 'succeeded':
-        return visibleItems.map((item) => (
-          <Link href={`/resource/${item.uuid}`} key={item.uuid} className={styles.item}>
-            <span className={styles.itemName}>{item.name}</span>
-            <span className={styles.itemDescription}>{item.category}</span>
-            <span className={styles.itemSize}>
-              {Object.values(item.source_links)[0]?.size || 'N/A'}
-            </span>
-          </Link>
-        ));
-      case 'failed':
-        return <div className={styles.errorMessage}>加载失败，请重试</div>;
-      default:
-        return null;
+    if (isLoading) {
+      return renderSkeletonItems();
     }
+    if (isError) {
+      return <div className={styles.errorMessage}>加载失败，请重试</div>;
+    }
+    return visibleItems.map((item) => (
+      <Link href={`/resource/${item.uuid}`} key={item.uuid} className={styles.item}>
+        <span className={styles.itemName}>{item.name}</span>
+        <span className={styles.itemDescription}>{item.category}</span>
+        <span className={styles.itemSize}>
+          {Object.values(item.source_links)[0]?.size || 'N/A'}
+        </span>
+      </Link>
+    ));
   };
 
   return (

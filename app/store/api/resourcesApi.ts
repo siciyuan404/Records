@@ -6,10 +6,10 @@ import { Resource } from '@/app/sys/add/types';
 
 export const resourcesApi = createApi({
   reducerPath: 'resourcesApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: '/api/' }), // 设置基础URL
   tagTypes: ['Resource'],
   endpoints: (builder) => ({
-    getResources: builder.query<Resource[], void>({
+    getResources: builder.query<Record<string, Resource>, void>({
       query: () => 'resources',
       providesTags: ['Resource'],
     }),
@@ -17,9 +17,9 @@ export const resourcesApi = createApi({
       query: (id) => `resources/${id}`,
       providesTags: (result, error, id) => [{ type: 'Resource', id }],
     }),
-    addResource: builder.mutation<Resource, Partial<Resource>>({
-      query: (resource) => ({
-        url: 'resources',
+    addResource: builder.mutation<Resource, Partial<Resource> & { id: string }>({
+      query: ({ id, ...resource }) => ({
+        url: `resources/${id}`,
         method: 'POST',
         body: resource,
       }),

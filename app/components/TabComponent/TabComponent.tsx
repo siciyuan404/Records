@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './TabComponent.module.css';
 import Link from 'next/link';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/app/store/store';
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Tab {
@@ -10,44 +9,39 @@ interface Tab {
   link: string;
 }
 
-
 export default function TabComponent() {
-  const [isExceed, setIsExceed] = useState(false); // 修改初始状态为 false
+  const [isExceed, setIsExceed] = useState(() => window.innerWidth < 768);
   const [showMoreModal, setShowMoreModal] = useState(false);
-  const [showMoreButton, setShowMoreButton] = useState(false); // 添加状态来控制“更多”按钮的显示
   const headerRef = useRef<HTMLDivElement>(null);
   const moreButtonRef = useRef<HTMLDivElement>(null);
   const moreModalRef = useRef<HTMLDivElement>(null);
-  const dispatch = useDispatch<AppDispatch>();
-  const { data: categories, status, error } = useSelector((state: RootState) => state.categories);
+  const { data, isLoading, isError } = useGetCategoriesQuery();
   const [tabs, setTabs] = useState<Tab[]>([]);
 
-  // 渲染骨架屏的函数
-  const renderSkeletons = () => {
+
+   // 渲染骨架屏的函数
+   const renderSkeletons = () => {
     return Array(10).fill(0).map((_, index) => (
       <Skeleton key={index} className={`${styles.tabItem} ${styles.skeletonTab}`} />
     ));
   };
-
   useEffect(() => {
-    setIsExceed(window.innerWidth < 768); // 在 useEffect 中设置 isExceed
-    setShowMoreButton(window.innerWidth >= 768); // 根据屏幕宽度设置 showMoreButton
-    if (status === 'succeeded' && categories) {
+    if (data) {
       const extractCategories = (obj: any): Tab[] => {
-        let extractedCategories: Tab[] = [];
+        let categories: Tab[] = [];
         for (let key in obj) {
           if (obj[key] && typeof obj[key] === 'object') {
             if (obj[key].items) {
-              extractedCategories = [...extractedCategories, ...extractCategories(obj[key].items)];
+              categories = [...categories, ...extractCategories(obj[key].items)];
             } else {
-              extractedCategories.push({ name: key, link: obj[key].link });
+              categories.push({ name: key, link: obj[key].link });
             }
           }
         }
-        return extractedCategories;
+        return categories;
       };
 
-      const allCategories = extractCategories(categories);
+      const allCategories = extractCategories(data);
       setTabs(allCategories);
     }
 
@@ -78,13 +72,13 @@ export default function TabComponent() {
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dispatch, categories, status]);
+  }, [data]);
 
   const toggleMoreModal = () => {
     setShowMoreModal(!showMoreModal);
   };
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className={styles.tabContainer} ref={headerRef}>
         <div className={styles.tabList}>
@@ -94,26 +88,24 @@ export default function TabComponent() {
     );
   }
 
-  if (status === 'failed') {
-    return <div>错误: {error}</div>;
+  if (isError) {
+    return <div>加载分类失败</div>;
   }
 
   return (
     <div className={styles.tabContainer} ref={headerRef}>
       {!isExceed && (
         <div className={styles.tabList}>
-          {tabs.slice(0, showMoreButton ? 23 : tabs.length).map((tab, index) => ( // 根据 showMoreButton 控制显示数量
+          {tabs.slice(0, 23).map((tab, index) => (
             <Link href={`/category/${tab.link}`} className={styles.tabItem} key={index}>{tab.name}</Link>
           ))}
-          {showMoreButton && ( // 仅在大屏幕上显示“更多”按钮
-            <div className={styles.tabItem} onClick={toggleMoreModal} ref={moreButtonRef}>
-              更多
-            </div>
-          )}
+          <div className={styles.tabItem} onClick={toggleMoreModal} ref={moreButtonRef}>
+            更多
+          </div>
           {showMoreModal && (
             <div className={styles.moreModal} ref={moreModalRef} style={{
               top: moreButtonRef.current ? `${moreButtonRef.current.offsetHeight + 135}px` : '100%',
-              left: moreButtonRef.current ? `${moreButtonRef.current.offsetLeft}px` : '0'
+              left: moreButtonRef.current ? `${moreButtonRef.current.offsetLeft - 80}px` : '0'
             }}>
               {tabs.slice(19).map((tab, index) => (
                 <Link href={`/category/${tab.link}`} className={styles.tabItem} key={index + 23}>{tab.name}</Link>

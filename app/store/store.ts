@@ -1,6 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { resourcesApi } from './api/resourcesApi';
+import { listApi } from './api/listApi';
+import { categoriesApi } from './api/categoriesApi';
 import categoriesReducer from './features/categories/categoriesSlice';
 import resourcesReducer from './features/resources/resourcesSlice';
 import listReducer from './features/list/listSlice';
@@ -10,11 +12,16 @@ export const store = configureStore({
     categories: categoriesReducer,
     resources: resourcesReducer,
     list: listReducer,
-    // 其他reducers...
     [resourcesApi.reducerPath]: resourcesApi.reducer,
+    [listApi.reducerPath]: listApi.reducer,
+    [categoriesApi.reducerPath]: categoriesApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(resourcesApi.middleware),
+    getDefaultMiddleware().concat(
+      resourcesApi.middleware,
+      listApi.middleware,
+      categoriesApi.middleware
+    ),
 });
 
 setupListeners(store.dispatch);

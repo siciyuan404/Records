@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CarouselCard.module.css';
-import { RootState } from '@/app/store/store';
-import { useSelector, useDispatch } from 'react-redux';
+import { useGetListItemsQuery } from '@/app/store/api/listApi';
 
 // 添加类型定义
 interface CarouselCardProps {
@@ -19,9 +18,9 @@ const Skeleton: React.FC = () => {
 
 const CarouselCard: React.FC<CarouselCardProps> = ({ title }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
-    const { data, status } = useSelector((state: RootState) => state.list);
+    const { data, isLoading, isError } = useGetListItemsQuery();
     
-    const carousel = status === 'succeeded' ? data?.carousel || [] : []; // 根据状态获取 carousel 数据
+    const carousel = data?.carousel || [];
     
     useEffect(() => {
         if (carousel.length > 0 && currentIndex >= carousel.length) {
@@ -29,7 +28,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({ title }) => {
         }
     }, [carousel, currentIndex]);
 
-    if (status === 'loading') {
+    if (isLoading) {
         return (
             <div className={styles.carouselCard}>
                 <h2 className={styles.title}>{title}</h2>
@@ -38,7 +37,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({ title }) => {
         );
     }
 
-    if (carousel.length === 0) {
+    if (isError || carousel.length === 0) {
         return (
             <div className={styles.carouselCard}>
                 <h2 className={styles.title}>{title}</h2>
