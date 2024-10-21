@@ -1,23 +1,32 @@
 'use client'
 
 import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { fetchResourcesAsync } from '@/app/store/features/resources/resourcesSlice';
-import { fetchCategoriesAsync } from '@/app/store/features/categories/categoriesSlice';
+import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
+// import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
+// import { fetchResourcesAsync } from '@/app/store/features/resources/resourcesSlice';
+// import { fetchCategoriesAsync } from '@/app/store/features/categories/categoriesSlice';
+// import { fetchList } from '@/app/store/features/list/listSlice';
 
-export default function ClientWrapper({ children }: { children: React.ReactNode }) {
-  const dispatch = useAppDispatch();
-  const resourcesStatus = useAppSelector(state => state.resources.status);
-  const categoriesStatus = useAppSelector(state => state.categories.status);
+
+export default function ClientWrapper() {
+  const { data, error, isLoading } = useGetResourcesQuery();
 
   useEffect(() => {
-    if (resourcesStatus === 'idle') {
-      dispatch(fetchResourcesAsync());
+    if (data) {
+      console.log('Resources data:', data);
     }
-    if (categoriesStatus === 'idle') {
-      dispatch(fetchCategoriesAsync());
+    if (error) {
+      console.error('Error fetching resources:', error);
     }
-  }, [dispatch, resourcesStatus, categoriesStatus]);
+  }, [data, error]);
 
-  return <>{children}</>;
+  if (isLoading) {
+    return <div>加载中...</div>;
+  }
+
+  if (error) {
+    return <div>加载资源时出错</div>;
+  }
+
+  return null;
 }

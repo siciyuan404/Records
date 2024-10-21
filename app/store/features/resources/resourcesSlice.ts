@@ -26,12 +26,27 @@ const initialState: ResourcesState = {
 export const fetchResourcesAsync = createAsyncThunk(
   'resources/fetchResources',
   async (_, { rejectWithValue }) => {
+    console.log('Fetching new data...');
     try {
       const resources = await fetchResources();
+      console.log('New data fetched:', resources);
       return resources;
     } catch (error) {
+      console.error('Error fetching resources:', error);
       return rejectWithValue((error as Error).message);
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as { resources: ResourcesState };
+      console.log('fetchResourcesAsync condition check. Current state:', state.resources);
+      // 如果正在加载或已经成功加载，则不执行
+      if (state.resources.status === 'loading' || state.resources.status === 'succeeded') {
+        console.log('Skipping fetchResourcesAsync due to current state');
+        return false;
+      }
+      return true;
+    },
   }
 );
 

@@ -37,8 +37,8 @@ const Sidebar = () => {
   return (
     <aside className={`bg-gray-100 text-gray-800 h-full transition-all duration-300 ease-in-out relative flex flex-col ${isExpanded ? 'w-64' : 'w-16'}`}>
       <div className="flex justify-between items-center p-4 overflow-hidden relative">
-        <Link href="/admin" className="flex items-center">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0"></div>
+        <Link href="/sys" className="flex items-center">
+          <img src="/favicon.ico" alt="管理后台图标" className="w-8 h-8 flex-shrink-0" />
           <span className={`ml-2 font-bold whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
             管理后台
           </span>
@@ -48,7 +48,7 @@ const Sidebar = () => {
             onClick={toggleSidebar}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300 transition-all duration-300 ease-in-out"
           >
-            <SidebarIcon size={16} className="rotate-180" />
+            <SidebarIcon className="rotate-180" size={20}/>
           </button>
         )}
       </div>

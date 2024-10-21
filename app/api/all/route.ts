@@ -3,7 +3,7 @@ import axios from 'axios';
 import AdmZip from 'adm-zip';
 import crypto from 'crypto';
 
-const GITHUB_ZIP_URL = 'https://github.com/mxrain/404zyt/archive/refs/heads/master.zip';
+const GITHUB_ZIP_URL = 'https://github.com/mxrain/resources/archive/refs/heads/master.zip';
 
 // 加密函数
 function encrypt(text: string, key: string): string {
@@ -40,9 +40,9 @@ export async function GET() {
     zipEntries.forEach(entry => console.log(entry.entryName));
 
     // 查找并读取all.json文件（修改这里以匹配正确的文件路径）
-    const allEntry = zipEntries.find(entry => entry.entryName.includes('json/categories.json'));
+    const allEntry = zipEntries.find(entry => entry.entryName.includes('db/categories.json'));
     if (!allEntry) {
-      throw new Error('在ZIP文件中未找到json/categories.json');
+      throw new Error('在ZIP文件中未找到db/categories.json');
     }
 
     const allContent = allEntry.getData().toString('utf8');
@@ -64,3 +64,4 @@ export async function GET() {
     );
   }
 }
+

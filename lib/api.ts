@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ResourcesState, Resource } from '../app/sys/add/types';
+import { ResourcesState, Resource } from '@/app/sys/add/types';
 import { toast } from '@/hooks/use-toast';
 
 const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
@@ -9,7 +9,9 @@ const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
 const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
 const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/master`;
 
-
+// 添加一个简单的内存缓存
+const cache: Record<string, { data: any, timestamp: number }> = {};
+const CACHE_DURATION = 60000; // 缓存时间，例如1分钟
 
 export const fetchData = async () => {
   try {
@@ -49,22 +51,22 @@ export const syncWithGithub = async (action: string, uuid?: string | null, data?
       case 'add':
       case 'edit':
         if (uuid && data) {
-          await syncFile(`src/db/zyt/${uuid}.json`, data, `${action === 'add' ? '添加' : '更新'}资源 ${uuid}`, syncResults);
+          await syncFile(`${uuid}.json`, data, `${action === 'add' ? '添加' : '更新'}资源 ${uuid}`, syncResults);
         }
         break;
       case 'delete':
         if (uuid) {
-          await deleteFile(`src/db/zyt/${uuid}.json`, `删除资源 ${uuid}`, syncResults);
+          await deleteFile(`${uuid}.json`, `删除资源 ${uuid}`, syncResults);
         }
         break;
       case 'updateList':
         if (data) {
-          await syncFile('src/db/list.json', data, '更新list.json', syncResults);
+          await syncFile('db/list.json', data, '更新list.json', syncResults);
         }
         break;
       case 'sync':
         if (resources) {
-          await syncFile('src/db/uuid_resource_curd.json', resources, '同步uuid_resource_curd.json', syncResults);
+          await syncFile('db/resources.json', resources, 'resources.json', syncResults);
         }
         break;
       default:
@@ -149,25 +151,54 @@ function encodeUnicode(str: string) {
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode(parseInt(p1, 16))));
 }
 
+// 修改 fetchCategories 函数
 export async function fetchCategories() {
+  const cacheKey = 'categories';
+  const now = Date.now();
+  if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
+    return cache[cacheKey].data;
+  }
+
   const res = await fetch('/api/categories');
   if (!res.ok) {
     throw new Error('Failed to fetch categories');
   }
-  return res.json();
+  const data = await res.json();
+  cache[cacheKey] = { data, timestamp: now };
+  return data;
 }
 
+// 类似地修改 fetchResources 函数
 export async function fetchResources() {
+  let fetchResourcesCallCount = 0;
+  fetchResourcesCallCount++;
+  console.log(`fetchResources called ${fetchResourcesCallCount} times`);
+
+  const cacheKey = 'resources';
+  const now = Date.now();
+  if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
+    console.log('Returning cached resources');
+    return cache[cacheKey].data;
+  }
+
+  console.log('Fetching fresh resources from API');
   const res = await fetch('/api/resources');
   if (!res.ok) {
     throw new Error('Failed to fetch resources');
   }
-  return res.json();
-};
+  const data = await res.json();
+  cache[cacheKey] = { data, timestamp: now };
+  return data;
+}
 
-// uuid.json
-
+// fetchResourceInfo 函数可以根据 uuid 进行缓存
 export async function fetchResourceInfo(uuid: string) {
+  const cacheKey = `resource_${uuid}`;
+  const now = Date.now();
+  if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
+    return cache[cacheKey].data;
+  }
+
   try {
     const res = await fetch(`/api/resources-info`, {
       method: 'POST',
@@ -179,7 +210,9 @@ export async function fetchResourceInfo(uuid: string) {
     if (!res.ok) {
       throw new Error('获取资源信息失败');
     }
-    return res.json();
+    const data = await res.json();
+    cache[cacheKey] = { data, timestamp: now };
+    return data;
   } catch (error) {
     console.error('获取资源信息时出错:', error);
     throw new Error('获取资源信息失败');

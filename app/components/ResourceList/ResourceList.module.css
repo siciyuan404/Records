@@ -1,0 +1,40 @@
+.resourceList {
+  margin: 0 auto;
+  width: 80%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .resourceList {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .resourceList {
+    width: 100%;
+  }
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+}
+
+.icon {
+  font-size: 48px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.message {
+  font-size: 18px;
+  color: #666;
+}

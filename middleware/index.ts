@@ -3,7 +3,8 @@ import type { NextRequest } from 'next/server';
 
 // 现有的身份验证中间件
 async function authMiddleware(req: NextRequest) {
-    console.log('authMiddleware');
+
+
     const { pathname } = req.nextUrl;
 
     // 如果是验证页面，直接放行

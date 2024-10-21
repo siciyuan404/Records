@@ -1,14 +1,13 @@
 import './globals.css';
 import { Inter } from 'next/font/google'  // 这是谷歌字体
 import { Providers } from './components/Providers';
-import ApiExecutor from './components/Executor/ApiExecutor';
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Admin Backend',
-  description: 'A powerful admin backend system',
+  title: '404资源桶',
+  description: '404资源桶-综合网盘聚合开源资源站',
 }
 
 export default function RootLayout({
@@ -20,9 +19,8 @@ export default function RootLayout({
     <html lang="zh">
       <body className={inter.className}>
         <Providers>
-         
           <Toaster />
-          <ApiExecutor>{children}</ApiExecutor>
+          {children}
         </Providers>
       </body>
     </html>
