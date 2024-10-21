@@ -18,7 +18,9 @@ const ExternalLinkRedirect: React.FC<ExternalLinkRedirectProps> = ({ href }) => 
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      window.location.href = href;
+      if (typeof window !== 'undefined') { // 添加检查
+        window.location.href = href;
+      }
     }, 3000);
 
     const interval = setInterval(() => {

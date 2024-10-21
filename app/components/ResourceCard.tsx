@@ -16,9 +16,13 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, uuid }) => {
     e.preventDefault();
     const href = e.currentTarget.href;
     if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-      window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+      if (typeof window !== 'undefined') { // 添加检查
+        window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+      }
     } else {
-      window.location.href = href;
+      if (typeof window !== 'undefined') { // 添加检查
+        window.location.href = href;
+      }
     }
   };
 

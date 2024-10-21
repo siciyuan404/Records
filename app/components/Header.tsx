@@ -84,11 +84,6 @@ const Header: React.FC = () => {
   const displayLogoText = logoText || fullLogoText;
 
   useEffect(() => {
-    console.log('Categories from query hook:', categories);
-    console.log('Categories from store:', categoriesFromStore);
-    console.log('Is loading:', isLoading);
-    console.log('Is error:', isError);
-    console.log('Error:', error);
   }, [categories, categoriesFromStore, isLoading, isError, error]);
 
   return (

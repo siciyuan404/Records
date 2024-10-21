@@ -10,7 +10,7 @@ interface Tab {
 }
 
 export default function TabComponent() {
-  const [isExceed, setIsExceed] = useState(() => window.innerWidth < 768);
+  const [isExceed, setIsExceed] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768); // 添加检查
   const [showMoreModal, setShowMoreModal] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const moreButtonRef = useRef<HTMLDivElement>(null);
@@ -60,7 +60,9 @@ export default function TabComponent() {
     };
 
     const handleResize = () => {
-      setIsExceed(window.innerWidth < 768 || (headerRef.current?.getBoundingClientRect().bottom || 0) <= 50);
+      if (typeof window !== 'undefined') { // 添加检查
+        setIsExceed(window.innerWidth < 768 || (headerRef.current?.getBoundingClientRect().bottom || 0) <= 50);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);

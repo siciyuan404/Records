@@ -17,7 +17,6 @@ export const categoriesApi = createApi({
       query: () => 'categories',
       providesTags: ['Categories'],
       transformResponse: (response: any) => {
-        console.log('API response:', response);
         if (response && typeof response === 'object') {
           // 检查响应是否已经是正确的格式
           if (Object.values(response).every(value => 

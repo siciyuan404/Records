@@ -27,9 +27,13 @@ const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.href;
     if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+      if (typeof window !== 'undefined') { // 添加检查
         window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+      }
     } else {
+      if (typeof window !== 'undefined') { // 添加检查
         window.location.href = href;
+      }
     }
 };
 
@@ -97,9 +101,13 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
         e.preventDefault();
         const href = e.currentTarget.href;
         if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-            window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+            if (typeof window !== 'undefined') { // 添加检查
+                window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
+            }
         } else {
-            window.location.href = href;
+            if (typeof window !== 'undefined') { // 添加检查
+                window.location.href = href;
+            }
         }
     };
 
@@ -228,7 +236,9 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                             if (info.psw) {
                                                 copyToClipboard(info.psw, "密码已复制到剪贴板");
                                             }
-                                            window.location.href = `/external-redirect?url=${encodeURIComponent(info.link)}`;
+                                            if (typeof window !== 'undefined') { // 添加检查
+                                                window.location.href = `/external-redirect?url=${encodeURIComponent(info.link)}`;
+                                            }
                                         }} 
                                         variant="outline" 
                                         size="icon"
