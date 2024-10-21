@@ -1,0 +1,176 @@
+.hotCard {
+    background-color: #ffffff;
+    border-radius: 10px;
+    color: #000000;
+    width: 100%;
+    height: 330px; /* 减小整体高度 */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Arial', sans-serif;
+    margin: 15px 15px 5px 15px;
+}
+
+.list {
+    
+    list-style-type: none;
+    padding: 10px;
+    margin: 0;
+    height: 230px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.list::-webkit-scrollbar {
+    display: none;
+}
+
+.item {
+    position: relative;
+    margin-bottom: 5px;
+    height: 35px;
+    transition: height 0.3s ease;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.item:hover {
+    height: 100px;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.itemTitle {
+    display: block;
+    font-size: 13px; /* 减小标题字体 */
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px; /* 减小padding */
+}
+
+.itemDetails {
+    position: absolute;
+    top: 35px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background-size: cover;
+    background-position: center;
+}
+
+.item:hover .itemDetails {
+    opacity: 1;
+}
+
+.itemInfo {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 8px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 11px; /* 减小详情字体 */
+}
+
+.itemDescription, .itemRating, .itemCategory {
+    margin: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navigationWrapper {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0;
+    opacity: 0; /* 初始状态为隐藏 */
+    transition: opacity 0.3s ease;
+}
+
+.hotCard:hover .navigationWrapper {
+    opacity: 1; /* 鼠标悬停时显示 */
+}
+
+.navButton {
+    background: #000000;
+    
+    border-radius: 30%;
+    border: none;
+    color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 12px; /* 减小按钮字体 */
+    font-weight: 600;
+    cursor: pointer;
+    padding: 5px;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+    margin: 0 0;
+}
+
+.navButton:hover {
+    background-color: rgba(255, 255, 255, 0.487);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.pageIndicator {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin: 0 4px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.activeDot {
+    width: 5px;
+    height: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dot:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* 其他样式保持不变 */
+
