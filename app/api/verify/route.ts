@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: '密码错误' }, { status: 400 });
   }
   
-  const githubApi = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  const githubApi = process.env.GITHUB_TOKEN;
   const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
   const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
   if (!githubApi || !owner || !repo) {
