@@ -69,22 +69,22 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white shadow flex-shrink-0 sticky top-0 z-10">
-      <nav className="flex items-center justify-between overflow-x-auto">
-        <div className="flex">
+      <nav className="flex flex-col sm:flex-row items-start sm:items-center justify-between overflow-x-auto p-1">
+        <div className="flex flex-wrap">
           {tabs.map((tab: Tab) => (
-            <div key={tab.path} className="flex items-center flex-shrink-0 m-1">
+            <div key={tab.path} className="flex items-center flex-shrink-0 m-0.5">
               <button
                 onClick={() => {
                   dispatch(setActiveTab(tab.path));
                   router.push(tab.path);
                 }}
-                className={`px-3 py-1 rounded-md flex items-center border border-transparent ${
+                className={`px-1.5 py-0.5 text-xs sm:text-sm rounded-md flex items-center border border-transparent ${
                   activeTab === tab.path ? 'bg-gray-200' : 'bg-gray-100'
                 }`}
               >
-                <span className="mr-2">{tab.title}</span>
+                <span className="mr-0.5 sm:mr-1">{tab.title}</span>
                 <X
-                  size={16}
+                  size={12}
                   className="text-gray-500 hover:text-gray-700 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -97,9 +97,9 @@ const Header: React.FC = () => {
         </div>
         <button
           onClick={closeAllTabs}
-          className="px-4 py-2 text-gray-500 hover:text-gray-700 flex items-center"
+          className="px-1.5 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm text-gray-500 hover:text-gray-700 flex items-center mt-1 sm:mt-0 whitespace-nowrap"
         >
-          <XCircle size={20} className="mr-1" />
+          <XCircle size={14} className="mr-0.5" />
           关闭所有
         </button>
       </nav>

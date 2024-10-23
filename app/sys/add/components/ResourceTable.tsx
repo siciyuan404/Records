@@ -43,13 +43,13 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
   const renderCell = (column: ColumnName, resource: any, uuid: string) => {
     switch (column) {
       case 'name': return resource.name;
-      case 'uuid': return uuid;
       case 'category': return resource.category;
       case 'images': return <ImagePreview images={resource.images} />;
       case 'source_links': return <SourceLinksPreview links={resource.source_links} />;
       case 'tags': return <TagsPreview tags={resource.tags} />;
       case 'uploaded': return new Date(resource.uploaded).toLocaleDateString();
       case 'update_time': return formatTimeAgo(resource.update_time);
+      case 'uuid': return uuid;
       default: return null;
     }
   };
@@ -71,7 +71,7 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto scrollbar-hide">
       <Table>
         <TableHeader>
           <TableRow>
@@ -102,22 +102,25 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
                 </TableCell>
               ))}
               <TableCell>
-                <DropdownMenu open={openMenus[uuid]} onOpenChange={(open) => handleMenuOpenChange(uuid, open)}>
+                <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
                       <span className="sr-only">打开菜单</span>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
-                    <DropdownMenuItem onClick={() => handleEditClick(uuid)}>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onEdit(uuid)}>
                       编辑
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDeleteClick(uuid)}>
+                    <DropdownMenuItem onClick={() => onDelete(uuid)}>
                       删除
                     </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <span className="font-medium">UUID:</span> {uuid}
+                    </DropdownMenuItem>
                     {visibleColumns.slice(3).map((column) => (
-                      <DropdownMenuItem key={column} onSelect={(e) => e.preventDefault()}>
+                      <DropdownMenuItem key={column}>
                         <span className="font-medium">{column}:</span> {renderCell(column, resource, uuid)}
                       </DropdownMenuItem>
                     ))}

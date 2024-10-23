@@ -46,7 +46,7 @@ const Sidebar = () => {
     <aside className={`bg-gray-100 text-gray-800 h-full transition-all duration-300 ease-in-out relative flex flex-col ${
       isExpanded ? 'w-56' : 'w-12'
     } text-xs`}>
-      <div className="flex justify-between items-center p-2 overflow-hidden relative">
+      <div className="flex justify-between items-center p-2 overflow-hidden relative ">
         <Link href="/sys" className="flex items-center">
           <img src="/favicon.ico" alt="管理后台图标" className="w-5 h-5 flex-shrink-0" />
           <span className={`ml-2 font-bold whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
