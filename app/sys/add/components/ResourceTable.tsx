@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -70,6 +70,21 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
     handleMenuOpenChange(uuid, false);
   };
 
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024); // 假设1024px是大屏幕的阈值
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const displayColumns = isLargeScreen ? visibleColumns : visibleColumns.slice(0, 3);
+
   return (
     <div className="overflow-x-auto scrollbar-hide">
       <Table>
@@ -81,10 +96,10 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            {visibleColumns.slice(0, 3).map((column) => (
-              <TableHead key={column}>{column}</TableHead>
+            {displayColumns.map((column) => (
+              <TableHead key={column} className="whitespace-nowrap">{column}</TableHead>
             ))}
-            <TableHead>操作</TableHead>
+            <TableHead className="whitespace-nowrap">操作</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -96,12 +111,14 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
                   onCheckedChange={(checked) => handleSelectOne(uuid, checked as boolean)}
                 />
               </TableCell>
-              {visibleColumns.slice(0, 3).map((column) => (
-                <TableCell key={column}>
-                  {renderCell(column, resource, uuid)}
+              {displayColumns.map((column) => (
+                <TableCell key={column} className="whitespace-nowrap overflow-hidden text-ellipsis">
+                  <div className="max-w-[200px] overflow-hidden text-ellipsis">
+                    {renderCell(column, resource, uuid)}
+                  </div>
                 </TableCell>
               ))}
-              <TableCell>
+              <TableCell className="whitespace-nowrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -116,10 +133,7 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
                     <DropdownMenuItem onClick={() => onDelete(uuid)}>
                       删除
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <span className="font-medium">UUID:</span> {uuid}
-                    </DropdownMenuItem>
-                    {visibleColumns.slice(3).map((column) => (
+                    {!isLargeScreen && visibleColumns.slice(3).map((column) => (
                       <DropdownMenuItem key={column}>
                         <span className="font-medium">{column}:</span> {renderCell(column, resource, uuid)}
                       </DropdownMenuItem>
