@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ColumnName } from '@/app/sys/add/types'
+import { ColumnVisibilityToggleProps } from '@/app/sys/add/types';
 
-interface ColumnVisibilityToggleProps {
-  columns: ColumnName[];
-  visibleColumns: ColumnName[];
-  setVisibleColumns: React.Dispatch<React.SetStateAction<ColumnName[]>>;
-}
-
-export function ColumnVisibilityToggle({ columns, visibleColumns, setVisibleColumns }: ColumnVisibilityToggleProps) {
+export const ColumnVisibilityToggle: React.FC<ColumnVisibilityToggleProps> = ({
+  columns,
+  visibleColumns,
+  setVisibleColumns,
+  useSmallScreen = false,
+}) => {
   return (
     <Popover>
       <PopoverTrigger asChild>

@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ListIcon } from 'lucide-react';
 
 interface BulkOperationButtonsProps { // 批量操作按钮
   onOperation: (operation: string, selectedUuids: string[]) => void; // onOperation 接收一个函数，函数接收一个字符串作为参数
   selectedUuids: string[];
+  useSmallScreen?: boolean;
 }
 
-export function BulkOperationButtons({ onOperation, selectedUuids }: BulkOperationButtonsProps) { 
+export function BulkOperationButtons({ onOperation, selectedUuids, useSmallScreen = false }: BulkOperationButtonsProps) { 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [selectedOperations, setSelectedOperations] = useState<string[]>([]);
@@ -32,8 +34,9 @@ export function BulkOperationButtons({ onOperation, selectedUuids }: BulkOperati
       <Button
         onClick={() => setIsDialogOpen(true)}
         disabled={selectedUuids.length === 0}
+        className={useSmallScreen ? "rounded-full w-12 h-12 p-0" : ""}
       >
-        批量操作
+        {useSmallScreen ? <ListIcon /> : "批量操作"}
       </Button>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

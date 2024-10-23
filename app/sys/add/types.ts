@@ -37,4 +37,9 @@ export interface ChangeRecord {
   listChanges?: string[];
 }
 
-
+export interface ColumnVisibilityToggleProps {
+  columns: ColumnName[];
+  visibleColumns: ColumnName[];
+  setVisibleColumns: React.Dispatch<React.SetStateAction<ColumnName[]>>;
+  useSmallScreen?: boolean;
+}

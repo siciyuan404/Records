@@ -17,6 +17,7 @@ import { useSyncWithGithubMutation } from '@/app/store/api/githubApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
 import { RootState } from '@/app/store/store';
+import { PlusIcon, SettingsIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon } from 'lucide-react';
 
 export default function ResourceCRUD() {
   const [resources, setResources] = useState<ResourcesState>({});
@@ -25,6 +26,7 @@ export default function ResourceCRUD() {
   const [editingResource, setEditingResource] = useState<{ uuid: string; resource: Resource } | null>(null);
   const { toast } = useToast();
   const [selectedUuids, setSelectedUuids] = useState<string[]>([]);
+  const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   
   const dispatch = useDispatch();
   const changeRecords = useSelector((state: RootState) => state.changeRecords.records);
@@ -101,9 +103,7 @@ export default function ResourceCRUD() {
   };
 
   return (
-
     <div className="mx-auto container p-4">
-      
       {changeRecords.length > 0 && (
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2">待同步的更改：</h3>
@@ -121,13 +121,12 @@ export default function ResourceCRUD() {
       <div className="flex justify-between items-center mb-4">
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="">添加新资源</Button>
+            <Button>添加新资源</Button>
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>添加新资源</DialogTitle>
             </DialogHeader>
-            
             <ResourceForm
               onSubmit={handleAddResource}
               categories={categoriesData || []}
@@ -144,14 +143,53 @@ export default function ResourceCRUD() {
           visibleColumns={visibleColumns}
           setVisibleColumns={setVisibleColumns}
         />
-
       </div>
 
-      <div className="flex justify-center mb-4">
-
+      {/* 小屏幕布局 */}
+      <div className="fixed bottom-4 right-4 flex flex-col gap-2 sm:hidden z-10">
+        <Button
+          className="rounded-full w-12 h-12 p-0"
+          onClick={() => setIsMenuExpanded(!isMenuExpanded)}
+        >
+          {isMenuExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
+        </Button>
+        
+        {isMenuExpanded && (
+          <>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="rounded-full w-12 h-12 p-0">
+                  <PlusIcon />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>添加新资源</DialogTitle>
+                </DialogHeader>
+                <ResourceForm
+                  onSubmit={handleAddResource}
+                  categories={categoriesData || []}
+                  tags={tagsData || {}}
+                />
+              </DialogContent>
+            </Dialog>
+            <Button className="rounded-full w-12 h-12 p-0" onClick={handleSyncGithub}>
+              <RefreshCwIcon />
+            </Button>
+            <BulkOperationButtons
+              onOperation={handleBulkOperation}
+              selectedUuids={selectedUuids}
+              useSmallScreen={true}
+            />
+            <ColumnVisibilityToggle
+              columns={['uuid', 'name', 'category', 'images', 'source_links', 'tags', 'uploaded', 'update_time']}
+              visibleColumns={visibleColumns}
+              setVisibleColumns={setVisibleColumns}
+              useSmallScreen={true}
+            />
+          </>
+        )}
       </div>
-
-
 
       <ResourceTable
         resources={resources}
