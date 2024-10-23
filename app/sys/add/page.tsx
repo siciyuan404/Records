@@ -17,7 +17,7 @@ import { useSyncWithGithubMutation } from '@/app/store/api/githubApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
 import { RootState } from '@/app/store/store';
-import { PlusIcon, SettingsIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon } from 'lucide-react';
+import { PlusIcon, SettingsIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon, ColumnsIcon } from 'lucide-react';
 
 export default function ResourceCRUD() {
   const [resources, setResources] = useState<ResourcesState>({});
@@ -104,7 +104,7 @@ export default function ResourceCRUD() {
 
   return (
     <div className="mx-auto container p-4">
-      {changeRecords.length > 0 && (
+      {/* {changeRecords.length > 0 && (
         <div className="mb-4">
           <h3 className="text-lg font-semibold mb-2">待同步的更改：</h3>
           <details>
@@ -114,11 +114,9 @@ export default function ResourceCRUD() {
             </pre>
           </details>
         </div>
-      )}
-      <div className="flex justify-between items-center mb-5">
+      )} */}
+      <div className="hidden sm:flex justify-between items-center mb-5">
         <Button onClick={handleSyncGithub}>同步到GitHub</Button>
-      </div>
-      <div className="flex justify-between items-center mb-4">
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>添加新资源</Button>
@@ -146,7 +144,7 @@ export default function ResourceCRUD() {
       </div>
 
       {/* 小屏幕布局 */}
-      <div className="fixed bottom-4 right-4 flex flex-col gap-2 sm:hidden z-10">
+      <div className="fixed bottom-4 right-4 flex flex-col-reverse gap-2 sm:hidden z-10">
         <Button
           className="rounded-full w-12 h-12 p-0"
           onClick={() => setIsMenuExpanded(!isMenuExpanded)}
@@ -186,7 +184,11 @@ export default function ResourceCRUD() {
               visibleColumns={visibleColumns}
               setVisibleColumns={setVisibleColumns}
               useSmallScreen={true}
-            />
+            >
+              <Button className="rounded-full w-12 h-12 p-0">
+                <ColumnsIcon />
+              </Button>
+            </ColumnVisibilityToggle>
           </>
         )}
       </div>
