@@ -43,10 +43,12 @@ const Sidebar = () => {
   ]
 
   return (
-    <aside className={`bg-gray-100 text-gray-800 h-full transition-all duration-300 ease-in-out relative flex flex-col ${isExpanded ? 'w-64' : 'w-16'}`}>
-      <div className="flex justify-between items-center p-4 overflow-hidden relative">
+    <aside className={`bg-gray-100 text-gray-800 h-full transition-all duration-300 ease-in-out relative flex flex-col ${
+      isExpanded ? 'w-56' : 'w-12'
+    } text-xs`}>
+      <div className="flex justify-between items-center p-2 overflow-hidden relative">
         <Link href="/sys" className="flex items-center">
-          <img src="/favicon.ico" alt="管理后台图标" className="w-8 h-8 flex-shrink-0" />
+          <img src="/favicon.ico" alt="管理后台图标" className="w-5 h-5 flex-shrink-0" />
           <span className={`ml-2 font-bold whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
             管理后台
           </span>
@@ -54,34 +56,34 @@ const Sidebar = () => {
         {isExpanded && (
           <button
             onClick={toggleSidebar}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300 transition-all duration-300 ease-in-out"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-5 h-5 bg-gray-200 rounded-full hover:bg-gray-300 transition-all duration-300 ease-in-out"
           >
-            <SidebarIcon className="rotate-180" size={20} />
+            <SidebarIcon className="rotate-180" size={16} />
           </button>
         )}
       </div>
 
-      <nav className="flex-grow mt-5 overflow-hidden px-2">
+      <nav className="flex-grow mt-3 overflow-hidden px-1">
         {menuItems.map((item, index) => (
           <div key={index} className="mb-1">
             {item.subItems ? (
               <div>
                 <button
                   onClick={toggleList}
-                  className="flex items-center w-full px-4 py-2 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
+                  className="flex items-center w-full px-2 py-1 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
                 >
-                  <item.icon className="inline-block flex-shrink-0" size={20} />
+                  <item.icon className="inline-block flex-shrink-0" size={16} />
                   <span className={`ml-2 whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'}`}>
                     {item.label}
                   </span>
                 </button>
                 {isListExpanded && isExpanded && (
-                  <div className="ml-4 mt-1">
+                  <div className="ml-2 mt-1">
                     {item.subItems.map((subItem, subIndex) => (
                       <Link
                         key={subIndex}
                         href={subItem.href}
-                        className="flex items-center px-4 py-2 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
+                        className="flex items-center px-2 py-1 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
                       >
                         <span className="whitespace-nowrap">{subItem.label}</span>
                       </Link>
@@ -92,10 +94,9 @@ const Sidebar = () => {
             ) : (
               <button
                 onClick={() => handleNavigation(item.href, item.label)}
-                className={`flex items-center w-full px-4 py-2 transition-colors overflow-hidden rounded-lg ${item.className || 'hover:bg-gray-200'
-                  }`}
+                className={`flex items-center w-full px-2 py-1 transition-colors overflow-hidden rounded-lg ${item.className || 'hover:bg-gray-200'}`}
               >
-                <item.icon className={`inline-block flex-shrink-0 ${item.className ? 'text-black' : ''}`} size={20} />
+                <item.icon className={`inline-block flex-shrink-0 ${item.className ? 'text-black' : ''}`} size={16} />
                 <span className={`ml-2 whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'} ${item.labelClassName || ''}`}>
                   {item.label}
                 </span>
@@ -110,37 +111,37 @@ const Sidebar = () => {
         onClick={toggleSidebar}
       ></div>
 
-      <div className="mb-1 px-2" >
+      <div className="mb-1 px-1">
         {!isExpanded && (
           <button
             onClick={toggleSidebar}
-            className="flex items-center w-full px-4 py-2 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
+            className="flex items-center w-full px-2 py-1 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
           >
-            <SidebarIcon className="inline-block flex-shrink-0" size={20} />
+            <SidebarIcon className="inline-block flex-shrink-0" size={16} />
           </button>
         )}
         <button
           onClick={() => router.push('/')}
-          className="flex items-center w-full px-4 py-2 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
+          className="flex items-center w-full px-2 py-1 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
         >
           {isExpanded ? (
             <>
-              <Home className="inline-block flex-shrink-0" size={20} />
+              <Home className="inline-block flex-shrink-0" size={16} />
               <span className="ml-2 whitespace-nowrap transition-all duration-300">返回主页</span>
             </>
           ) : (
-            <Home className="inline-block flex-shrink-0" size={20} />
+            <Home className="inline-block flex-shrink-0" size={16} />
           )}
         </button>
       </div>
 
-      <div className="mb-1 px-2">
+      <div className="mb-1 px-1">
         <button
           ref={changeHistoryButtonRef}
           onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-          className="flex items-center w-full px-4 py-2 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
+          className="flex items-center w-full px-2 py-1 hover:bg-gray-200 transition-colors overflow-hidden rounded-lg"
         >
-          <History className="inline-block flex-shrink-0" size={20} />
+          <History className="inline-block flex-shrink-0" size={16} />
           <span className={`ml-2 whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0'}`}>
             变更历史
           </span>
@@ -151,7 +152,6 @@ const Sidebar = () => {
         isOpen={isDrawerOpen} 
         onClose={() => setIsDrawerOpen(false)}
       />
-
     </aside>
   )
 }

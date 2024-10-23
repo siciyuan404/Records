@@ -102,7 +102,7 @@ export default function ResourceCRUD() {
 
   return (
 
-    <div className="container mx-auto p-4">
+    <div className="mx-auto container p-4">
       
       {changeRecords.length > 0 && (
         <div className="mb-4">
