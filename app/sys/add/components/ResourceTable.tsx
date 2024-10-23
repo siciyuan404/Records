@@ -7,6 +7,13 @@ import { ImagePreview } from './ImagePreview'
 import { SourceLinksPreview } from './SourceLinksPreview'
 import { formatTimeAgo } from '@/lib/utils'
 import { TagsPreview } from './TagsPreview'
+import { MoreHorizontal } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ResourceTableProps {
   resources: ResourcesState;
@@ -33,56 +40,94 @@ export function ResourceTable({ resources, visibleColumns, onEdit, onDelete, onS
     onSelectionChange(newSelectedUuids);
   };
 
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[20px] flex justify-center items-center">
-            <Checkbox
-              checked={selectedUuids.length === Object.keys(resources).length}
-              onCheckedChange={handleSelectAll}
-            />
-          </TableHead>
-          {visibleColumns.map((column) => (
-            <TableHead key={column}>{column}</TableHead>
-          ))}
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Object.entries(resources).map(([uuid, resource]) => (
+  const renderCell = (column: ColumnName, resource: any, uuid: string) => {
+    switch (column) {
+      case 'name': return resource.name;
+      case 'uuid': return uuid;
+      case 'category': return resource.category;
+      case 'images': return <ImagePreview images={resource.images} />;
+      case 'source_links': return <SourceLinksPreview links={resource.source_links} />;
+      case 'tags': return <TagsPreview tags={resource.tags} />;
+      case 'uploaded': return new Date(resource.uploaded).toLocaleDateString();
+      case 'update_time': return formatTimeAgo(resource.update_time);
+      default: return null;
+    }
+  };
 
-          <TableRow key={uuid}>
-            <TableCell className="w-[20px] pl-1.5">
-              <div className="flex items-center justify-center w-full h-full min-h-[40px]">
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  const handleMenuOpenChange = (uuid: string, open: boolean) => {
+    setOpenMenus(prev => ({ ...prev, [uuid]: open }));
+  };
+
+  const handleEditClick = (uuid: string) => {
+    onEdit(uuid);
+    handleMenuOpenChange(uuid, false);
+  };
+
+  const handleDeleteClick = (uuid: string) => {
+    onDelete(uuid);
+    handleMenuOpenChange(uuid, false);
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[20px]">
+              <Checkbox
+                checked={selectedUuids.length === Object.keys(resources).length}
+                onCheckedChange={handleSelectAll}
+              />
+            </TableHead>
+            {visibleColumns.slice(0, 3).map((column) => (
+              <TableHead key={column}>{column}</TableHead>
+            ))}
+            <TableHead>操作</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Object.entries(resources).map(([uuid, resource]) => (
+            <TableRow key={uuid}>
+              <TableCell className="w-[20px]">
                 <Checkbox
                   checked={selectedUuids.includes(uuid)}
                   onCheckedChange={(checked) => handleSelectOne(uuid, checked as boolean)}
                 />
-              </div>
-            </TableCell>
-            {visibleColumns.map((column) => (
-              <TableCell key={column}>
-
-                {column === 'name' && resource.name}
-                {column === 'uuid' && uuid}
-                {column === 'category' && resource.category}
-                {column === 'images' && <ImagePreview images={resource.images} />}
-                {column === 'source_links' && <SourceLinksPreview links={resource.source_links} />}
-                {column === 'tags' && (
-                  <TagsPreview tags={resource.tags} />
-                )}
-                {column === 'uploaded' && new Date(resource.uploaded).toLocaleDateString()}
-                {column === 'update_time' && formatTimeAgo(resource.update_time)}
               </TableCell>
-            ))}
-            <TableCell>
-              <Button onClick={() => onEdit(uuid)} className="mr-2">编辑</Button>
-              <Button onClick={() => onDelete(uuid)} variant="destructive">删除</Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              {visibleColumns.slice(0, 3).map((column) => (
+                <TableCell key={column}>
+                  {renderCell(column, resource, uuid)}
+                </TableCell>
+              ))}
+              <TableCell>
+                <DropdownMenu open={openMenus[uuid]} onOpenChange={(open) => handleMenuOpenChange(uuid, open)}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">打开菜单</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
+                    <DropdownMenuItem onClick={() => handleEditClick(uuid)}>
+                      编辑
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDeleteClick(uuid)}>
+                      删除
+                    </DropdownMenuItem>
+                    {visibleColumns.slice(3).map((column) => (
+                      <DropdownMenuItem key={column} onSelect={(e) => e.preventDefault()}>
+                        <span className="font-medium">{column}:</span> {renderCell(column, resource, uuid)}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

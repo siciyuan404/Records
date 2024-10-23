@@ -3,24 +3,34 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { resourcesApi } from './api/resourcesApi';
 import { listApi } from './api/listApi';
 import { categoriesApi } from './api/categoriesApi';
+import { tagsApi } from './api/tagsApi';
+import { githubApi } from './api/githubApi';
 import categoriesReducer from './features/categories/categoriesSlice';
 import resourcesReducer from './features/resources/resourcesSlice';
 import listReducer from './features/list/listSlice';
+import tabsReducer from './features/tabs/tabsSlice';
+import changeRecordsReducer from './features/changeRecords/changeRecordsSlice';
 
 export const store = configureStore({
   reducer: {
+    tabs: tabsReducer,
     categories: categoriesReducer,
     resources: resourcesReducer,
     list: listReducer,
+    changeRecords: changeRecordsReducer,
     [resourcesApi.reducerPath]: resourcesApi.reducer,
     [listApi.reducerPath]: listApi.reducer,
     [categoriesApi.reducerPath]: categoriesApi.reducer,
+    [tagsApi.reducerPath]: tagsApi.reducer,
+    [githubApi.reducerPath]: githubApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       resourcesApi.middleware,
       listApi.middleware,
-      categoriesApi.middleware
+      categoriesApi.middleware,
+      tagsApi.middleware,
+      githubApi.middleware,
     ),
 });
 

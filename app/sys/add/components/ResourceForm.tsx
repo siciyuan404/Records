@@ -48,6 +48,7 @@ export function ResourceForm({ initialData, onSubmit, categories, tags }: Resour
 
     return (
         <Form {...form}>
+            
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar p-4 w-full">
                 <FormField
                     control={form.control}

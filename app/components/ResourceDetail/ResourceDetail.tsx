@@ -18,6 +18,7 @@ import { Resource } from '@/app/sys/add/types'
 import { fetchResourceInfo } from '@/lib/api'
 import ResourceSkeleton from './ResourceSkeleton'
 import Link from 'next/link'
+import { cn } from "@/lib/utils"
 
 interface ResourceDetailProps {
     uuid: string;
@@ -53,6 +54,9 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
+    const [imageLoaded, setImageLoaded] = useState<boolean[]>([]);
+    const [skeletonColors, setSkeletonColors] = useState<string[]>([]);
+
     useEffect(() => {
         const fetchResource = async () => {
             try {
@@ -66,6 +70,22 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
         };
         fetchResource();
     }, [uuid]);
+
+    useEffect(() => {
+        if (resource) {
+            setImageLoaded(new Array(resource.images.length).fill(false));
+            setSkeletonColors(resource.images.map(() => getRandomColor()));
+        }
+    }, [resource]);
+
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
 
     if (loading) {
         return <ResourceSkeleton />;
@@ -118,25 +138,54 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
             transition={{ duration: 0.5 }}
             className="container mx-auto px-4 py-8"
         >
-            <Card className="shadow-md rounded-lg overflow-hidden bg-white">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-900">
-                    <CardTitle className="text-2xl font-bold">{resource.name}</CardTitle>
-                    <CardDescription className="text-gray-600">{resource.category}</CardDescription>
-                    <div className="flex flex-wrap items-center gap-4 mt-4">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="flex items-center space-x-1 bg-white bg-opacity-80 rounded-full px-3 py-1 shadow-sm">
-                                        <Star className="h-5 w-5 text-yellow-500" />
-                                        <span className="text-gray-700">{resource.rating}</span>
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>资源评分</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                        {/* 添加下载次数和评论数的Tooltip */}
+            <Card className="rounded-lg overflow-hidden bg-white border-transparent shadow-md">
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 p-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <CardTitle className="text-3xl font-bold mb-2 text-gray-800">{resource.name}</CardTitle>
+                            <CardDescription className="text-gray-600 text-lg">{resource.category}</CardDescription>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 mt-4 md:mt-0">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm">
+                                            <Star className="h-5 w-5 text-yellow-500" />
+                                            <span className="text-gray-700 font-medium">{resource.rating}</span>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="text-sm">资源评分</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm">
+                                            <Download className="h-5 w-5 text-blue-500" />
+                                            <span className="text-gray-700 font-medium">10</span>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="text-sm">下载次数</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm">
+                                            <MessageSquare className="h-5 w-5 text-green-500" />
+                                            <span className="text-gray-700 font-medium">{resource.comments}</span>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="text-sm">评论数</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-gray-50">
@@ -146,12 +195,27 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         transition={{ delay: 0.2 }}
                         className="relative w-full h-[300px] mb-6 overflow-hidden rounded-lg"
                     >
+                        <div
+                            className={cn(
+                                "absolute inset-0 transition-opacity duration-300",
+                                imageLoaded[currentImageIndex] ? "opacity-0" : "opacity-100"
+                            )}
+                            style={{ backgroundColor: skeletonColors[currentImageIndex] }}
+                        />
                         <Image
                             src={resource.images[currentImageIndex]}
                             alt={`${resource.name} - 图片`}
                             layout="fill"
                             objectFit="cover"
-                            className="rounded-lg"
+                            className={cn(
+                                "rounded-lg transition-opacity duration-300",
+                                imageLoaded[currentImageIndex] ? "opacity-100" : "opacity-0"
+                            )}
+                            onLoad={() => {
+                                const newImageLoaded = [...imageLoaded];
+                                newImageLoaded[currentImageIndex] = true;
+                                setImageLoaded(newImageLoaded);
+                            }}
                         />
                         <div className="absolute inset-0 flex items-center justify-between p-4">
                             <Button onClick={prevImage} variant="ghost" size="icon" className="bg-black bg-opacity-50 text-white">
@@ -186,7 +250,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                             <Card key={source} className="mb-4 p-4 transition-all duration-300 cursor-pointer border-transparent bg-gray-100 shadow-none"
                             >
                                 <div className="flex items-center justify-between mb-2">
-                                    <p className="font-medium">{source}</p>
+                                    <p className="font-bold text-lg">{source}</p>
                                     <p className="text-sm text-muted-foreground">大小：{info.size}</p>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -262,29 +326,43 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                             <Info className="mr-2" /> 资源信息
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
-                            <div className="flex items-center">
-                                <Calendar className="mr-2 text-gray-500" />
-                                <span className="w-20 inline-block">更新时间：</span>
-                                <span>{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</span>
+                            <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
+                                <div className="flex items-center">
+                                    <Calendar className="mr-2 text-gray-500" />
+                                    <span className="w-32 inline-block">更新时间：</span>
+                                    <span className="text-gray-400">{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</span>
+                                </div>
                             </div>
-                            <div className="flex items-center">
-                                <LinkIcon className="mr-2 text-gray-500" />
-                                <span className="w-20 inline-block">官方地址：</span>
-                                <a href={resource.link} onClick={handleLinkClick} className="text-gray-500 hover:text-gray-700 hover:underline truncate">
-                                    {resource.link}
-                                </a>
+                            <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
+                                <div className="flex items-center">
+                                    <LinkIcon className="mr-2 text-gray-500" />
+                                    <span className="w-32 inline-block">官方地址：</span>
+                                    <a 
+                                        href={resource.link} 
+                                        onClick={handleLinkClick} 
+                                        className="text-gray-500 hover:text-gray-700 transition-colors duration-200 truncate"
+                                    >
+                                        {resource.link}
+                                    </a>
+                                </div>
                             </div>
                             {Object.entries(resource.resource_information || {}).map(([key, value]) => (
-                                <div key={key} className="flex items-center">
-                                    <Info className="mr-2 text-gray-500" />
-                                    <span className="w-20 inline-block font-semibold">{key}：</span>
-                                    {typeof value === 'string' && value.startsWith('http') ? (
-                                        <a href={value} onClick={handleLinkClick} className="text-gray-500 hover:text-gray-700 hover:underline truncate">
-                                            {value}
-                                        </a>
-                                    ) : (
-                                        <span className="text-gray-500">{value}</span>
-                                    )}
+                                <div key={key} className="p-4 bg-gray-100 rounded-lg shadow-sm">
+                                    <div className="flex items-center">
+                                        <Info className="mr-2 text-gray-500" />
+                                        <span className="w-32 inline-block font-semibold">{key}：</span>
+                                        {typeof value === 'string' && value.startsWith('http') ? (
+                                            <a 
+                                                href={value} 
+                                                onClick={handleLinkClick} 
+                                                className="text-gray-500 hover:text-gray-700 transition-colors duration-200 truncate"
+                                            >
+                                                {value}
+                                            </a>
+                                        ) : (
+                                            <span className="text-gray-500">{value}</span>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -325,12 +403,27 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                     <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
                                         <DialogTrigger asChild>
                                             <div className="relative w-full h-[150px] cursor-pointer overflow-hidden rounded-lg">
+                                                <div
+                                                    className={cn(
+                                                        "absolute inset-0 transition-opacity duration-300",
+                                                        imageLoaded[index] ? "opacity-0" : "opacity-100"
+                                                    )}
+                                                    style={{ backgroundColor: skeletonColors[index] }}
+                                                />
                                                 <Image
                                                     src={image}
                                                     alt={`${resource.name} - 图片 ${index + 1}`}
                                                     layout="fill"
                                                     objectFit="cover"
-                                                    className="rounded-lg"
+                                                    className={cn(
+                                                        "rounded-lg transition-opacity duration-300",
+                                                        imageLoaded[index] ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                    onLoad={() => {
+                                                        const newImageLoaded = [...imageLoaded];
+                                                        newImageLoaded[index] = true;
+                                                        setImageLoaded(newImageLoaded);
+                                                    }}
                                                 />
                                                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity">
                                                     <Eye className="h-6 w-6 text-white" />

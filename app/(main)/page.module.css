@@ -259,47 +259,57 @@
     }
   }
 
-  /* 大屏幕 (≥1200px): 保持4列布局 */
+  /* 大屏幕 (≥1200px): 5列布局 */
   @media screen and (min-width: 1200px) {
     .grid {
       grid-template-columns: repeat(5, 1fr);
-      margin: 10px 20%; /* 在大屏幕上设置左右边距为20% */
+      margin: 10px 20%; /* 减少左右边距以显示更多内容 */
     }
     
-    .grid > *:nth-child(2) {
+    .grid > *:nth-child(1),
+    .grid > *:nth-child(2),
+    .grid > *:nth-child(4),
+    .grid > *:nth-child(5) {
       grid-column: span 2;
     }
     .grid > *:nth-child(3) {
       grid-column: span 1;
     }
-    .grid > *:nth-child(4) {
-      grid-column: span 2;
-    }
-    .grid > *:nth-child(5) {
-      grid-column: span 2;
-    }
   }
 
-  /* 中等屏幕 (≥768px 和 <1200px): 3列布局 */
-  @media screen and (min-width: 768px) and (max-width: 1199px) {
+  /* 中等屏幕 (≥992px 和 <1200px): 4列布局 */
+  @media screen and (min-width: 992px) and (max-width: 1199px) {
     .grid {
-      grid-template-columns: repeat(3, 1fr);
-      margin: 0 5%; /* 在中等屏幕上设置左右边距为15% */
+      grid-template-columns: repeat(4, 1fr);
+      margin: 10px 5%;
     }
     
-    .grid > *:nth-child(1){
-      grid-column: span 3;
-    } 
+    .grid > *:nth-child(1),
     .grid > *:nth-child(2) {
       grid-column: span 2;
     }
   }
 
-  /* 小屏幕 (<768px): 2列布局 */
-  @media screen and (min-width: 480px) and (max-width: 767px) {
+  /* 平板 (≥768px 和 <992px): 3列布局 */
+  @media screen and (min-width: 768px) and (max-width: 991px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      margin: 10px 5%;
+    }
+    
+    .grid > *:nth-child(1) {
+      grid-column: span 3;
+    }
+    .grid > *:nth-child(2) {
+      grid-column: span 2;
+    }
+  }
+
+  /* 大型手机 (≥576px 和 <768px): 2列布局 */
+  @media screen and (min-width: 576px) and (max-width: 767px) {
     .grid {
       grid-template-columns: repeat(2, 1fr);
-      margin: 5% 5%; /* 在小屏幕上设置左右边距为10% */
+      margin: 10px 5%;
     }
     
     .grid > * {
@@ -307,14 +317,14 @@
     }
   }
 
-  /* 超小屏幕 (<480px): 1列布局 */
-  @media screen and (max-width: 479px) {
+  /* 小型手机 (<576px): 1列布局 */
+  @media screen and (max-width: 575px) {
     .grid {
-      grid-template-columns: 1fr; /* 确保在超小屏幕上使用1列布局 */
-      margin: 5%; /* 在超小屏幕上去掉左右边距 */
+      grid-template-columns: 1fr;
+      margin: 10px 5%;
     }
     
     .grid > * {
-      grid-column: span 1 !important; /* 确保每个卡片占据100%宽度 */
+      grid-column: span 1 !important;
     }
   }

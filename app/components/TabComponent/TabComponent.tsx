@@ -17,7 +17,7 @@ export default function TabComponent() {
   const moreModalRef = useRef<HTMLDivElement>(null);
   const { data, isLoading, isError } = useGetCategoriesQuery();
   const [tabs, setTabs] = useState<Tab[]>([]);
-
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
    // 渲染骨架屏的函数
    const renderSkeletons = () => {
@@ -60,10 +60,15 @@ export default function TabComponent() {
     };
 
     const handleResize = () => {
-      if (typeof window !== 'undefined') { // 添加检查
-        setIsExceed(window.innerWidth < 768 || (headerRef.current?.getBoundingClientRect().bottom || 0) <= 50);
+      if (typeof window !== 'undefined') {
+        const isSmall = window.innerWidth < 768;
+        setIsSmallScreen(isSmall);
+        setIsExceed(isSmall || (headerRef.current?.getBoundingClientRect().bottom || 0) <= 50);
       }
     };
+
+    // 初始化时调用一次
+    handleResize();
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleResize);
@@ -98,12 +103,17 @@ export default function TabComponent() {
     <div className={styles.tabContainer} ref={headerRef}>
       {!isExceed && (
         <div className={styles.tabList}>
-          {tabs.slice(0, 23).map((tab, index) => (
+          {/* 如果是小屏幕，显示所有标签；否则只显示前23个 */}
+          {(isSmallScreen ? tabs : tabs.slice(0, 23)).map((tab, index) => (
             <Link href={`/category/${tab.link}`} className={styles.tabItem} key={index}>{tab.name}</Link>
           ))}
-          <div className={styles.tabItem} onClick={toggleMoreModal} ref={moreButtonRef}>
-            更多
-          </div>
+          {/* 只在非小屏幕时显示"更多"按钮 */}
+          {!isSmallScreen && (
+            <div className={styles.tabItem} onClick={toggleMoreModal} ref={moreButtonRef}>
+              更多
+            </div>
+          )}
+          {/* "更多"模态框的逻辑保持不变 */}
           {showMoreModal && (
             <div className={styles.moreModal} ref={moreModalRef} style={{
               top: moreButtonRef.current ? `${moreButtonRef.current.offsetHeight + 135}px` : '100%',

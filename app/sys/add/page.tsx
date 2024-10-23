@@ -3,37 +3,43 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { fetchData, syncWithGithub } from '@/lib/api'
 import { ColumnVisibilityToggle } from './components/ColumnVisibilityToggle'
 import { BulkOperationButtons } from './components/BulkOperationButtons'
 import { ResourceTable } from './components/ResourceTable'
 import { ResourceForm } from './components/ResourceForm'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Resource, ResourcesState, ColumnName ,ChangeRecord} from '@/app/sys/add/types'
+import { Resource, ResourcesState, ColumnName } from '@/app/sys/add/types'
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
+import { useGetTagsQuery } from '@/app/store/api/tagsApi';
+import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
+import { useGetListItemsQuery } from '@/app/store/api/listApi';
+import { useSyncWithGithubMutation } from '@/app/store/api/githubApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
+import { RootState } from '@/app/store/store';
 
 export default function ResourceCRUD() {
-  const [resources, setResources] = useState<ResourcesState>({}); // 资源数据
-  const [categories, setCategories] = useState<any[]>([]); // 分类数据
-  const [tags, setTags] = useState<Record<string, any>>({}); // 标签数据
-  const [listData, setListData] = useState<Record<string, any>>({}); // 列表排行数据
-  const [visibleColumns, setVisibleColumns] = useState<ColumnName[]>(['name', 'uuid', 'category', 'images', 'source_links', 'tags', 'uploaded', 'update_time']); // 
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);  // 
+  const [resources, setResources] = useState<ResourcesState>({});
+  const [visibleColumns, setVisibleColumns] = useState<ColumnName[]>(['name', 'uuid', 'category', 'images', 'source_links', 'tags', 'uploaded', 'update_time']);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<{ uuid: string; resource: Resource } | null>(null);
   const { toast } = useToast();
   const [selectedUuids, setSelectedUuids] = useState<string[]>([]);
-  const [changeRecords, setChangeRecords] = useState<ChangeRecord[]>([]);
+  
+  const dispatch = useDispatch();
+  const changeRecords = useSelector((state: RootState) => state.changeRecords.records);
+
+  const { data: categoriesData, refetch: refetchCategories} = useGetCategoriesQuery();
+  const { data: tagsData, refetch: refetchTags} = useGetTagsQuery();
+  const { data: resourcesData, refetch: refetchResources} = useGetResourcesQuery();
+  const { data: listData, refetch: refetchListData } = useGetListItemsQuery();
+  const [syncWithGithub] = useSyncWithGithubMutation();
 
   useEffect(() => {
-    const loadData = async () => {
-      const { resources, categories, tags, listData } = await fetchData();
-      setResources(resources);
-      setCategories(categories);
-      setTags(tags);
-      setListData(listData);
-    };
-    loadData();
-    
-  }, []);
+    if (resourcesData) {
+      setResources(resourcesData);
+    }
+  }, [resourcesData]);
 
   const handleAddResource = async (data: Resource) => {
     const uuid = crypto.randomUUID();
@@ -44,7 +50,7 @@ export default function ResourceCRUD() {
     };
     setResources(prev => ({ ...prev, [uuid]: newResource }));
     setIsAddDialogOpen(false);
-    setChangeRecords(prev => [...prev, { action: 'add', uuid, data: newResource }]);
+    dispatch(addChangeRecord({ action: 'add', uuid, data: newResource }));
   };
 
   const handleEditResource = async (uuid: string, data: Resource) => {
@@ -54,7 +60,7 @@ export default function ResourceCRUD() {
     };
     setResources(prev => ({ ...prev, [uuid]: updatedResource }));
     setEditingResource(null);
-    setChangeRecords(prev => [...prev, { action: 'edit', uuid, data: updatedResource }]);
+    dispatch(addChangeRecord({ action: 'edit', uuid, data: updatedResource }));
   };
 
   const handleDeleteResource = async (uuid: string) => {
@@ -63,26 +69,27 @@ export default function ResourceCRUD() {
       delete newResources[uuid];
       return newResources;
     });
-    setChangeRecords(prev => [...prev, { action: 'delete', uuid }]);
+    dispatch(addChangeRecord({ action: 'delete', uuid }));
   };
 
   const handleSyncGithub = async () => {
+    
     for (const record of changeRecords) {
       switch (record.action) {
         case 'add':
         case 'edit':
-          await syncWithGithub(record.action, record.uuid, record.data);
+          await syncWithGithub({ action: record.action, uuid: record.uuid, data: record.data });
           break;
         case 'delete':
-          await syncWithGithub('delete', record.uuid);
+          await syncWithGithub({ action: 'delete', uuid: record.uuid });
           break;
         case 'bulk':
-          await syncWithGithub('updateList', null, listData);
+          await syncWithGithub({ action: 'updateList', data: listData });
           break;
       }
     }
-    await syncWithGithub('sync', null, null, resources);
-    setChangeRecords([]);
+    await syncWithGithub({ action: 'sync', data: resources });
+    dispatch(clearChangeRecords());
     toast({
       title: "成功",
       description: "已成功同步到GitHub。",
@@ -90,39 +97,24 @@ export default function ResourceCRUD() {
   };
 
   const handleBulkOperation = async (operation: string, uuids: string[]) => {
-    const updatedListData = { ...listData };
-    uuids.forEach(uuid => {
-      if (!updatedListData[operation]) {
-        updatedListData[operation] = [];
-      }
-      const resourceData = resources[uuid];
-      if (resourceData && !updatedListData[operation].some((item: { uuid: string }) => item.uuid === uuid)) {
-        updatedListData[operation].push({
-          uuid,
-          name: resourceData.name,
-          category: resourceData.category,
-          images: resourceData.images,
-          tags: resourceData.tags,
-          source_links: resourceData.source_links,
-          uploaded: resourceData.uploaded,
-          update_time: resourceData.update_time,
-          introduction: resourceData.introduction,
-          resource_information: resourceData.resource_information,
-          link: resourceData.link,
-          rating: resourceData.rating,
-          comments: resourceData.comments,
-          download_count: resourceData.download_count,
-          download_limit: resourceData.download_limit,
-          other_information: resourceData.other_information
-        });
-      }
-    });
-    setListData(updatedListData);
-    setChangeRecords(prev => [...prev, { action: 'bulk', data: { operation, uuids } }]);
+    dispatch(addChangeRecord({ action: 'bulk', data: { operation, uuids } }));
   };
 
   return (
+
     <div className="container mx-auto p-4">
+      
+      {changeRecords.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold mb-2">待同步的更改：</h3>
+          <details>
+            <summary className="cursor-pointer">点击展开/收起详细信息</summary>
+            <pre className="bg-gray-100 p-4 rounded mt-2 overflow-auto">
+              {JSON.stringify(changeRecords, null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
       <div className="flex justify-between items-center mb-5">
         <Button onClick={handleSyncGithub}>同步到GitHub</Button>
       </div>
@@ -135,7 +127,12 @@ export default function ResourceCRUD() {
             <DialogHeader>
               <DialogTitle>添加新资源</DialogTitle>
             </DialogHeader>
-            <ResourceForm onSubmit={handleAddResource} categories={categories} tags={tags} />
+            
+            <ResourceForm
+              onSubmit={handleAddResource}
+              categories={categoriesData || []}
+              tags={tagsData || {}}
+            />
           </DialogContent>
         </Dialog>
         <BulkOperationButtons
@@ -165,7 +162,6 @@ export default function ResourceCRUD() {
           setSelectedUuids(newSelectedUuids);
         }}
       />
-
       {editingResource && (
         <Dialog open={!!editingResource} onOpenChange={() => setEditingResource(null)}>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -175,8 +171,8 @@ export default function ResourceCRUD() {
             <ResourceForm
               initialData={editingResource.resource}
               onSubmit={(data) => handleEditResource(editingResource.uuid, data)}
-              categories={categories}
-              tags={tags}
+              categories={categoriesData || []}
+              tags={tagsData || {}}
             />
           </DialogContent>
         </Dialog>

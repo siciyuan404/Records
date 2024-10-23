@@ -34,7 +34,7 @@
   padding: 3px 10px;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1.1rem;
   font-weight: 600;
   background: #e3e3e3;
   color: #353535;
@@ -115,7 +115,7 @@
   margin: 0 5px;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 1.1rem;
   font-weight: 600;
   background: #f8f8f8;
   color: #353535;
@@ -174,7 +174,7 @@
 
 .moreModal {
   position: absolute;
-  background-color: #fff;
+  background-color: #F8F9FA;
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #00000013;
@@ -206,7 +206,7 @@
   background-color: #f0f0f0;
   color: #333;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 1.1rem;
 }
 
 .moreModal .tabItem:hover {
