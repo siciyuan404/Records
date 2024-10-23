@@ -18,11 +18,14 @@ const Header: React.FC = () => {
 
   React.useEffect(() => {
     if (pathname) {
-      const currentTab = tabs.find((tab: Tab) => tab.path === pathname);
-      if (!currentTab) {
-        dispatch(addTab({ path: pathname, title: getTabTitle(pathname) }));
-      } else {
-        dispatch(setActiveTab(pathname));
+      // 检查路径是否以 '/sys' 开头，但不仅仅是 '/sys'
+      if (pathname.startsWith('/sys/') && pathname !== '/sys') {
+        const currentTab = tabs.find((tab: Tab) => tab.path === pathname);
+        if (!currentTab) {
+          dispatch(addTab({ path: pathname, title: getTabTitle(pathname) }));
+        } else {
+          dispatch(setActiveTab(pathname));
+        }
       }
     }
   }, [pathname, dispatch, tabs]);
@@ -31,8 +34,9 @@ const Header: React.FC = () => {
     const pathSegments = path.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
     
-    // 这里定义路径与中文标题的映射
+    // 更新标题映射，包含 'sys'
     const titleMap: { [key: string]: string } = {
+      'sys': '系统',
       'add': '添加',
       'dashboard': '仪表盘',
       'categories': '分类树',

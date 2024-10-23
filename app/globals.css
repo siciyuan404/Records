@@ -102,3 +102,12 @@ footer {
 .container {
   @apply max-w-7xl mx-auto px-4;
 }
+
+/* 自定义 NProgress 样式 */
+#nprogress .bar {
+  background: #29d; /* 进度条颜色 */
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #29d, 0 0 5px #29d; /* 进度条阴影 */
+}

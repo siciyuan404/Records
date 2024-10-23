@@ -221,3 +221,36 @@
   margin: 0 10px;
   border-radius: 15px;
 }
+
+.noHorizontalScroll {
+  overflow-x: hidden;
+  width: 100%;
+  touch-action: pan-y; /* 允许垂直平移，禁止水平平移 */
+}
+
+@media (max-width: 768px) {
+  .tabContainer {
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .tabList {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .tabList::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera*/
+  }
+
+  .tabItem {
+    flex: 0 0 auto;
+  }
+}

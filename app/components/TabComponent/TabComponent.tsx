@@ -64,6 +64,16 @@ export default function TabComponent() {
         const isSmall = window.innerWidth < 768;
         setIsSmallScreen(isSmall);
         setIsExceed(isSmall || (headerRef.current?.getBoundingClientRect().bottom || 0) <= 50);
+        
+        // 强制重新计算布局
+        if (headerRef.current) {
+          headerRef.current.style.width = '100%';
+          setTimeout(() => {
+            if (headerRef.current) {
+              headerRef.current.style.width = '';
+            }
+          }, 0);
+        }
       }
     };
 
@@ -85,6 +95,29 @@ export default function TabComponent() {
     setShowMoreModal(!showMoreModal);
   };
 
+  // 添加一个新的 useEffect 来处理视口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      // 强制重新计算布局
+      if (headerRef.current) {
+        headerRef.current.style.width = '100%';
+        setTimeout(() => {
+          if (headerRef.current) {
+            headerRef.current.style.width = '';
+          }
+        }, 0);
+      }
+    };
+
+    // 监听 resize 事件
+    window.addEventListener('resize', handleResize);
+
+    // 清理函数
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className={styles.tabContainer} ref={headerRef}>
@@ -100,7 +133,7 @@ export default function TabComponent() {
   }
 
   return (
-    <div className={styles.tabContainer} ref={headerRef}>
+    <div className={`${styles.tabContainer} ${styles.noHorizontalScroll}`} ref={headerRef}>
       {!isExceed && (
         <div className={styles.tabList}>
           {/* 如果是小屏幕，显示所有标签；否则只显示前23个 */}

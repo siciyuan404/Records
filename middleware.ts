@@ -1,28 +1,45 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// 添加一个简单的内存缓存
+const tokenCache = new Map<string, number>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+
+async function verifyToken(token: string, origin: string): Promise<boolean> {
+  const now = Date.now();
+  if (tokenCache.has(token)) {
+    const cacheTime = tokenCache.get(token)!;
+    if (now - cacheTime < CACHE_DURATION) {
+      return true; // 使用缓存的结果
+    }
+  }
+
+  try {
+    const verifyResponse = await fetch(`${origin}/api/verify`, {
+      method: 'GET',
+      headers: {
+        'Cookie': `token=${token}`
+      }
+    });
+    if (verifyResponse.ok) {
+      tokenCache.set(token, now); // 缓存验证结果
+      return true;
+    }
+  } catch (error) {
+    console.error('Token验证错误:', error);
+  }
+  return false;
+}
+
 // 现有的身份验证中间件
 async function authMiddleware(req: NextRequest) {
     const { pathname } = req.nextUrl; //这一步是获取请求的路径
     // 如果是验证页面，我们需要特殊处理
     if (pathname.startsWith('/verify')) {
         const token = req.cookies.get('token')?.value;
-        if (token) {
+        if (token && await verifyToken(token, req.nextUrl.origin)) {
             // 如果有token，验证它
-            try {
-                const verifyResponse = await fetch(`${req.nextUrl.origin}/api/verify`, {
-                    method: 'GET',
-                    headers: {
-                        'Cookie': `token=${token}`
-                    }
-                });
-                if (verifyResponse.ok) {
-                    // 如果token有效，重定向到/sys
-                    return NextResponse.redirect(new URL('/sys', req.url));
-                }
-            } catch (error) {
-                console.error('Token验证错误:', error);
-            }
+            return NextResponse.redirect(new URL('/sys', req.url));
         }
         // 如果没有token或token无效，允许访问验证页面
         return NextResponse.next();
@@ -31,21 +48,7 @@ async function authMiddleware(req: NextRequest) {
     // 对于/sys路径，我们需要确保用户已认证
     if (pathname.startsWith('/sys')) {
         const token = req.cookies.get('token')?.value;
-        if (!token) {
-            return NextResponse.redirect(new URL('/verify', req.url));
-        }
-        try {
-            const verifyResponse = await fetch(`${req.nextUrl.origin}/api/verify`, {
-                method: 'GET',
-                headers: {
-                    'Cookie': `token=${token}`
-                }
-            });
-            if (!verifyResponse.ok) {
-                return NextResponse.redirect(new URL('/verify', req.url));
-            }
-        } catch (error) {
-            console.error('Token验证错误:', error);
+        if (!token || !(await verifyToken(token, req.nextUrl.origin))) {
             return NextResponse.redirect(new URL('/verify', req.url));
         }
     }
