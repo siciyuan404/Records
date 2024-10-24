@@ -1,7 +1,9 @@
-import React from 'react';
-import type { Metadata, Viewport } from 'next';
+'use client';
 
-export const metadata: Metadata = {
+import React from 'react';
+import type {Viewport } from 'next';
+
+export const metadata = {
   title: '推荐资源',
   description: '四次元资源桶 - 推荐资源列表',
 };
