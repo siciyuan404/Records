@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { Edit, Trash2, Plus, ChevronDown, ChevronRight, Save } from 'lucide-react'
@@ -404,4 +404,13 @@ const CRUDTable: React.FC = () => {
   )
 }
 
-export default CRUDTable
+const CategoriesPage = () => {
+  return (
+    <Suspense fallback={<div>加载中...</div>}>
+      {/* 使用 useSearchParams 的部分 */}
+      <CRUDTable />
+    </Suspense>
+  );
+};
+
+export default CategoriesPage
