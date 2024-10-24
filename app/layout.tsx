@@ -42,7 +42,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <ClientLayout>
-            <Suspense fallback={<div>加载中...</div>}>
+            <Suspense fallback={<div>loading...</div>}>
               <Toaster />
               {children}
             </Suspense>
