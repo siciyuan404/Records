@@ -1,4 +1,17 @@
 import React from 'react';
+import type { Metadata, Viewport } from 'next';
+
+export const metadata: Metadata = {
+  title: '推荐资源',
+  description: '四次元资源桶 - 推荐资源列表',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 const RecommendListPage: React.FC = () => {
   return (

@@ -5,13 +5,20 @@ import { Providers } from './components/Providers';
 import { Toaster } from "@/components/ui/toaster"
 import 'nprogress/nprogress.css'
 import ClientLayout from './ClientLayout';  // 添加这行
+import type { Metadata, Viewport } from 'next';
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
+export const metadata: Metadata = {
   title: '四次元资源桶',
   description: '四次元资源桶 - 您的资源管理平台',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
