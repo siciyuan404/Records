@@ -28,9 +28,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head>
-        <style>{`
+    <Suspense fallback={<LoadingAnimation />}>
+      <html lang="en">
+        <head>
+          <style>{`
           #nprogress .bar {
             background: #000000; /* 黑色进度条 */
             height: 3px; /* 保持进度条高度不变 */
@@ -39,17 +40,16 @@ export default function RootLayout({
             box-shadow: 0 0 10px #000000, 0 0 5px #000000; /* 黑色阴影效果 */
           }
         `}</style>
-      </head>
-      <body>
-        <Providers>
-          <ClientLayout>
-            <Toaster />
-            <Suspense fallback={<LoadingAnimation />}>
+        </head>
+        <body>
+          <Providers>
+            <ClientLayout>
+              <Toaster />
               {children}
-            </Suspense>
-          </ClientLayout>
-        </Providers>
-      </body>
-    </html>
+            </ClientLayout>
+          </Providers>
+        </body>
+      </html>
+    </Suspense>
   );
 }
