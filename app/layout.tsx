@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import './globals.css';
 import { Inter } from 'next/font/google'  // 这是谷歌字体
 import { Providers } from './components/Providers';
@@ -42,8 +42,10 @@ export default function RootLayout({
       <body>
         <Providers>
           <ClientLayout>
-            <Toaster />
-            {children}
+            <Suspense fallback={<div>加载中...</div>}>
+              <Toaster />
+              {children}
+            </Suspense>
           </ClientLayout>
         </Providers>
       </body>
