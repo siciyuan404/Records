@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useDispatch, useSelector } from 'react-redux'
 import Sidebar from './components/Sidebar/Sidebar'
@@ -44,14 +44,16 @@ export default function SysLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex flex-col flex-grow overflow-hidden">
-        <Header />
-        <main className="flex-grow p-0 sm:p-10 overflow-auto">
-          {children}
-        </main>
+    <Suspense fallback={<div>加载中...</div>}>
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar />
+        <div className="flex flex-col flex-grow overflow-hidden">
+          <Header />
+          <main className="flex-grow p-0 sm:p-10 overflow-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </Suspense>
   )
 }
