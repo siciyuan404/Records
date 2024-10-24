@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect ,Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
@@ -33,5 +33,5 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     }
   }, [pathname, searchParams])
 
-  return <>{children}</>
+  return <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
 }

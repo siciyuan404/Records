@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -17,5 +17,9 @@ export function LoadingProgress() {
     };
   }, [pathname, searchParams]);
 
-  return null;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      null
+    </Suspense>
+  )
 }
