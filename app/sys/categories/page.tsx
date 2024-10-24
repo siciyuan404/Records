@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { fetchCategories } from '@/lib/fetchCategories';
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 interface CategoryData {
   icon?: string
@@ -406,7 +407,7 @@ const CRUDTable: React.FC = () => {
 
 const CategoriesPage = () => {
   return (
-    <Suspense fallback={<div>加载中...</div>}>
+    <Suspense fallback={<LoadingAnimation />}>
       {/* 使用 useSearchParams 的部分 */}
       <CRUDTable />
     </Suspense>

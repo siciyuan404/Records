@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar/Sidebar'
 import Header from './components/Header'
 import { addTab, setActiveTab } from '../store/features/tabs/tabsSlice'
 import { RootState } from '../store/store'
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation'
 
 export default function SysLayout({
   children,
@@ -44,7 +45,7 @@ export default function SysLayout({
   }
 
   return (
-    <Suspense fallback={<div>加载中...</div>}>
+    <Suspense fallback={<LoadingAnimation />}>
       <div className="flex h-screen bg-gray-100">
         <Sidebar />
         <div className="flex flex-col flex-grow overflow-hidden">

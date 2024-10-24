@@ -1,10 +1,11 @@
 'use client';
 
 import React, { Suspense } from 'react';
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 const LatestListPage = () => {
   return (
-    <Suspense fallback={<div>加载中...</div>}>
+    <Suspense fallback={<LoadingAnimation />}>
 
 
       <div className="p-4">

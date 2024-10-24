@@ -15,12 +15,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, uuid }) => {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.href;
-    if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-      if (typeof window !== 'undefined') { // 添加检查
+    if (typeof window !== 'undefined') {
+      if (href.startsWith('http') && !href.includes(window.location.hostname)) {
         window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
-      }
-    } else {
-      if (typeof window !== 'undefined') { // 添加检查
+      } else {
         window.location.href = href;
       }
     }

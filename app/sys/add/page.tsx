@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
 import { RootState } from '@/app/store/store';
 import { PlusIcon, SettingsIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon, ColumnsIcon } from 'lucide-react';
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 export default function ResourceCRUD() {
   const [resources, setResources] = useState<ResourcesState>({});
@@ -104,7 +105,7 @@ export default function ResourceCRUD() {
   };
 
   return (
-    <Suspense fallback={<div>加载中...</div>}>
+    <Suspense fallback={<LoadingAnimation />}>
 
 
       <div className="mx-auto container p-4">

@@ -2,6 +2,7 @@ import { useEffect,Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 NProgress.configure({ showSpinner: false });
 
@@ -18,7 +19,7 @@ export function LoadingProgress() {
   }, [pathname, searchParams]);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingAnimation />}>
       null
     </Suspense>
   )

@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import ExternalLinkRedirect from '../components/ExternalLinkRedirect';
+import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 export default function ExternalRedirectContent() {
   const searchParams = useSearchParams();
@@ -12,7 +13,7 @@ export default function ExternalRedirectContent() {
     return <div>无效的URL</div>;
   }
 
-  return <Suspense fallback={<div>Loading...</div>}>
+  <Suspense fallback={<LoadingAnimation />}>
     <ExternalLinkRedirect href={url} />
   </Suspense>;
 }

@@ -49,7 +49,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: categories, isLoading, isError, error } = useGetCategoriesQuery();
   const [logoText, setLogoText] = useState('');
-  const fullLogoText = '四次元资源桶';
+  const fullLogoText = '资源桶';
 
   // 直接从 Redux store 中获取数据
   const categoriesFromStore = useSelector((state: RootState) => state.categoriesApi.queries['getCategories(undefined)']?.data);
