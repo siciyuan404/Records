@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ExternalLinkRedirect from '../components/ExternalLinkRedirect';
+import LoadingAnimation from '../components/LoadingAnimation/LoadingAnimation';
 
 export default function ExternalRedirectPage() {
   const [url, setUrl] = useState<string | null>(null);
@@ -15,7 +16,9 @@ export default function ExternalRedirectPage() {
   }, []);
 
   if (isLoading) {
-    return <div>加载中...</div>;
+    return (
+      <LoadingAnimation />
+    )
   }
 
   if (!url) {

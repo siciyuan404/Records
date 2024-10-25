@@ -49,7 +49,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: categories, isLoading, isError, error } = useGetCategoriesQuery();
   const [logoText, setLogoText] = useState('');
-  const fullLogoText = '资源桶';
+  const fullLogoText = '四次元资源桶';
 
   // 直接从 Redux store 中获取数据
   const categoriesFromStore = useSelector((state: RootState) => state.categoriesApi.queries['getCategories(undefined)']?.data);
@@ -100,7 +100,6 @@ const Header: React.FC = () => {
             </div>
           ) : isError ? (
             <div className={styles.errorMessage}>
-              错误: 无法加载分类
               {error && 'status' in error && (
                 <span> (状态码: {error.status})</span>
               )}
@@ -125,7 +124,7 @@ const Header: React.FC = () => {
                 )}
               </div>
               <Link href="https://chatbot.weixin.qq.com/webapp/zR6XpGC9NjMrGjpuuboUQACIxqCwLZ?robotName=%E8%B5%84%E6%BA%90%E6%90%9C%E7%B4%A2%E6%9C%BA%E5%99%A8%E4%BA%BA" className={`${styles.menuButton} ${styles.enhancedMenuButton}`}>
-                <span className={styles.menuText}>资源求助</span>
+                <span className={styles.menuText}>资源机器人</span>
               </Link>
             </>
           ) : (

@@ -73,6 +73,7 @@ export default function ResourceCRUD() {
       delete newResources[uuid];
       return newResources;
     });
+    
     dispatch(addChangeRecord({ action: 'delete', uuid }));
   };
 
@@ -109,17 +110,6 @@ export default function ResourceCRUD() {
 
 
       <div className="mx-auto container p-4">
-        {/* {changeRecords.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">待同步的更改：</h3>
-          <details>
-            <summary className="cursor-pointer">点击展开/收起详细信息</summary>
-            <pre className="bg-gray-100 p-4 rounded mt-2 overflow-auto">
-              {JSON.stringify(changeRecords, null, 2)}
-            </pre>
-          </details>
-        </div>
-      )} */}
         <div className="hidden sm:flex justify-between items-center mb-5">
           <Button onClick={handleSyncGithub}>同步到GitHub</Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

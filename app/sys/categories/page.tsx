@@ -1,8 +1,7 @@
 "use client"
 
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect, Suspense, useMemo } from 'react'
 import axios from 'axios'
-import { useSelector } from 'react-redux'
 import { Edit, Trash2, Plus, ChevronDown, ChevronRight, Save } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -20,10 +19,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
-import { fetchCategories } from '@/lib/fetchCategories';
+import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
 interface CategoryData {
@@ -35,13 +33,14 @@ interface CategoryData {
 interface AddItemFormProps {
   onSubmit: (formData: { key: string; icon: string; link: string }) => void
   onCancel: () => void
+  availableIcons: string[]
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel }) => {
+const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel, availableIcons }) => {
   const [formData, setFormData] = useState({ key: '', icon: '', link: '' })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,13 +58,18 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel }) => {
         placeholder="类别名称"
         required
       />
-      <Input
-        type="text"
+      <select
         name="icon"
         value={formData.icon}
         onChange={handleChange}
-        placeholder="图标路径"
-      />
+        className="w-40"
+        required
+      >
+        <option value="" disabled>选择图标</option>
+        {availableIcons.map(icon => (
+          <option key={icon} value={icon}>{icon}</option>
+        ))}
+      </select>
       <Input
         type="text"
         name="link"
@@ -90,7 +94,7 @@ interface RecursiveTableRowProps {
   onKeyEdit: (path: string[], newKey: string) => void
 }
 
-const RecursiveTableRow: React.FC<RecursiveTableRowProps> = ({
+const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
   data,
   path,
   onEdit,
@@ -118,6 +122,12 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = ({
   }
 
   const hasChildren = data.items && Object.keys(data.items).length > 0
+
+  const handleCancelEdit = () => {
+    setEditedData(data);
+    setEditedKey(path[path.length - 1]);
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -149,8 +159,12 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = ({
               className="w-40"
             />
           ) : (
-            data.icon && LucideIcons[data.icon as keyof typeof LucideIcons] && 
-            React.createElement(LucideIcons[data.icon as keyof typeof LucideIcons] as React.ElementType)
+            // 添加默认图标逻辑
+            data.icon && LucideIcons[data.icon as keyof typeof LucideIcons] ? (
+              React.createElement(LucideIcons[data.icon as keyof typeof LucideIcons] as React.ElementType, { size: 16 })
+            ) : (
+              <LucideIcons.HelpCircle size={16} />
+            )
           )}
         </TableCell>
         <TableCell>
@@ -166,12 +180,17 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = ({
         </TableCell>
         <TableCell>
           {isEditing ? (
-            <Button onClick={handleSave}>保存</Button>
+            <>
+              <Button onClick={handleSave}>保存</Button>
+              <Button variant="outline" onClick={handleCancelEdit}>取消</Button>
+            </>
           ) : (
-            <Button variant="ghost" size="sm" onClick={handleEdit}><Edit size={16} /></Button>
+            <>
+              <Button variant="ghost" size="sm" onClick={handleEdit}><Edit size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Trash2 size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Plus size={16} /></Button>
+            </>
           )}
-          <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Trash2 size={16} /></Button>
-          <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Plus size={16} /></Button>
         </TableCell>
       </TableRow>
       {isExpanded && hasChildren && Object.entries(data.items!).map(([key, value]) => (
@@ -187,10 +206,11 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = ({
       ))}
     </>
   )
-}
+})
 
 const CRUDTable: React.FC = () => {
   const [data, setData] = useState<Record<string, CategoryData>>({})
+  const { data: categoriesData, isLoading, isError } = useGetCategoriesQuery();
   const [showAddForm, setShowAddForm] = useState(false)
   const [currentPath, setCurrentPath] = useState<string[]>([])
   const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
@@ -199,21 +219,17 @@ const CRUDTable: React.FC = () => {
   const { toast } = useToast()
 
   useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      const categoriesData = await fetchCategories();
-      setData(categoriesData);
-    } catch (error) {
-      console.error('获取数据失败:', error);
-      toast({
-        title: "错误",
-        description: "获取数据失败",
-        variant: "destructive",
-      });
+    if (categoriesData) {
+      setData(categoriesData)
     }
+  }, [categoriesData])
+
+  if (isError) {
+    toast({
+      title: "错误",
+      description: "获取数据失败",
+      variant: "destructive",
+    });
   }
 
   const handleEdit = (path: string[], newData: CategoryData) => {
@@ -361,9 +377,17 @@ const CRUDTable: React.FC = () => {
     }
   }
 
+  const availableIcons = useMemo(() => Object.keys(LucideIcons), []);
+
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">CRUD 表格</h1>
+      <h1 className="text-2xl font-bold mb-4">类目树</h1>
+      
+
+      <Button className="mb-4" onClick={() => setShowAddForm(true)}>
+        添加新分类
+      </Button>
+      
       <Table>
         <TableHeader>
           <TableRow>
@@ -398,9 +422,18 @@ const CRUDTable: React.FC = () => {
           <AddItemForm
             onSubmit={handleAddSubmit}
             onCancel={() => setShowAddForm(false)}
+            availableIcons={availableIcons}
           />
         </DialogContent>
       </Dialog>
+    {process.env.NODE_ENV === 'development' && (
+      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+        <h2 className="text-xl font-bold mb-2">调试信息：categoriesData</h2>
+        <pre className="whitespace-pre-wrap overflow-x-auto">
+          {JSON.stringify(categoriesData, null, 2)}
+        </pre>
+      </div>
+    )}
     </div>
   )
 }
