@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { X, ArrowUp, ArrowDown, Trash2, Github } from 'lucide-react';
+import { X, ArrowUp, ArrowDown, Trash2, GithubIcon } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../../../store/store';
-import { deleteChangeRecord, moveChangeRecord } from '../../../../store/features/changeRecords/changeRecordsSlice';
+import { RootState, AppDispatch } from '@/app/store/store';
+import { deleteChangeRecord, moveChangeRecord ,syncToGithub} from '@/app/store/features/changeRecords/changeRecordsSlice';
 
 interface ChangeHistoryDrawerProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface ChangeHistoryDrawerProps {
 }
 
 const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClose }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const changeRecords = useSelector((state: RootState) => state.changeRecords.records);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -51,9 +51,8 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
     dispatch(moveChangeRecord({ index, direction }));
   };
 
-  const handleSyncToGithub = () => {
-    console.log('同步到 GitHub');
-    // dispatch(syncToGithub());
+  const handleSyncToGithub = async () => {
+    await dispatch(syncToGithub());
   };
 
   return (
@@ -97,7 +96,7 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
         </div>
         <div className="p-4 border-t">
           <button onClick={handleSyncToGithub} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded flex items-center justify-center">
-            <Github className="mr-2" size={20} />
+            <GithubIcon className="mr-2" size={20} />
             同步到 GitHub
           </button>
         </div>

@@ -10,6 +10,7 @@ import resourcesReducer from './features/resources/resourcesSlice';
 import listReducer from './features/list/listSlice';
 import tabsReducer from './features/tabs/tabsSlice';
 import changeRecordsReducer from './features/changeRecords/changeRecordsSlice';
+import { iconsApi } from './api/iconsApi';
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
     [categoriesApi.reducerPath]: categoriesApi.reducer,
     [tagsApi.reducerPath]: tagsApi.reducer,
     [githubApi.reducerPath]: githubApi.reducer,
+    [iconsApi.reducerPath]: iconsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -31,7 +33,8 @@ export const store = configureStore({
       categoriesApi.middleware,
       tagsApi.middleware,
       githubApi.middleware,
-    ),
+      iconsApi.middleware
+    )
 });
 
 setupListeners(store.dispatch);

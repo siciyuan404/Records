@@ -1,9 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 
 
-const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
-const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
-const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER || 'mxrain';
+const repo = process.env.NEXT_PUBLIC_GITHUB_REPO || 'xyz';
+const token = process.env.GITHUB_TOKEN || '';
+
+const GITHUB_API_URL = `https://api.github.com/repos/${owner}/${repo}/contents`;
+
 
 interface GitHubFile {
   name: string;
@@ -33,7 +36,7 @@ class GitHubUtils {
       method,
       url,
       headers: {
-        Authorization: `token ${this.token}`,
+        Authorization: `token ${token}`,
         'Accept': 'application/vnd.github.v3+json'
       },
       data
@@ -64,6 +67,14 @@ class GitHubUtils {
       return false;
     }
   }
+
+  //获取sha
+  async getFileSha(owner: string, repo: string, path: string): Promise<string | null> {
+    const file = await this.getFileContent(owner, repo, path);
+    return file?.sha || null;
+  }
+  
+
 
   // 更新文件
   async updateFile(owner: string, repo: string, path: string, content: string, sha: string): Promise<boolean> {
@@ -101,29 +112,3 @@ class GitHubUtils {
     return results;
   }
 }
-
-// 使用示例
-async function example() {
-  const github = new GitHubUtils();
-  const owner = process.env.GITHUB_OWNER || '';
-  const repo = process.env.GITHUB_REPO || '';
-
-  // 获取文件内容
-  const fileContent = await github.getFileContent(owner, repo, 'README.md');
-
-  // 创建新文件
-  const createSuccess = await github.createFile(owner, repo, 'test.txt', 'Hello, GitHub!');
-
-  // 更新文件
-  if (fileContent && fileContent.sha) {
-    const updateSuccess = await github.updateFile(owner, repo, 'test.txt', 'Updated content', fileContent.sha);
-  }
-
-  // 删除文件
-  if (fileContent && fileContent.sha) {
-    const deleteSuccess = await github.deleteFile(owner, repo, 'test.txt', fileContent.sha);
-  }
-}
-
-// 运行示例
-// example().catch(console.error);

@@ -58,6 +58,10 @@ const config: Config = {
   		},
 		scrollbar: {
 			hide: 'scrollbar-hide',
+		},
+		opacity: {
+			'0': '0',
+			'100': '1',
 		}
   	}
   },

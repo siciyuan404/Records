@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react'
 import axios from 'axios'
-import { Edit, Trash2, Plus, ChevronDown, ChevronRight, Save } from 'lucide-react'
-import * as LucideIcons from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -19,10 +17,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@/components/ui/select"
+import Icon from '@/components/ui/icon' // 新增导入自定义 Icon 组件
+import { useGetIconsQuery } from '@/app/store/api/iconsApi';
 
 interface CategoryData {
   icon?: string
@@ -37,10 +40,12 @@ interface AddItemFormProps {
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel, availableIcons }) => {
+  const testAvailableIcons = ['Home', 'User', 'Settings']; // 根据 lucide-react 确认实际图标名称
+
   const [formData, setFormData] = useState({ key: '', icon: '', link: '' })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,32 +54,49 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel, available
   }
 
   return (
+    
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* debug模式 显示formData */}
+      <pre>{JSON.stringify(formData, null, 2)}</pre>
+      {/* 已经选择的图标展示 */}
+      <div className="grid grid-cols-2 gap-4">
+        {formData.icon && <Icon name={formData.icon} size={24} />}
+      </div>
       <Input
         type="text"
         name="key"
         value={formData.key}
-        onChange={handleChange}
+        onChange={(e) => handleChange('key', e.target.value)}
         placeholder="类别名称"
         required
       />
-      <select
+      <Select
         name="icon"
         value={formData.icon}
-        onChange={handleChange}
-        className="w-40"
+        onValueChange={(value) => handleChange('icon', value)}
         required
       >
-        <option value="" disabled>选择图标</option>
-        {availableIcons.map(icon => (
-          <option key={icon} value={icon}>{icon}</option>
-        ))}
-      </select>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="选择图标" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>图标</SelectLabel>
+            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {testAvailableIcons.map((icon) => (
+                <SelectItem key={icon} value={icon}>
+                  {icon}
+                </SelectItem>
+              ))}
+            </div>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
       <Input
         type="text"
         name="link"
         value={formData.link}
-        onChange={handleChange}
+        onChange={(e) => handleChange('link', e.target.value)}
         placeholder="链接"
       />
       <div className="flex justify-end space-x-2">
@@ -136,7 +158,7 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
           <div className="flex items-center space-x-2" style={{ marginLeft: `${path.length * 20}px` }}>
             {hasChildren && (
               <Button variant="ghost" size="sm" onClick={handleToggle}>
-                {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                {isExpanded ? <Icon name="ChevronDown" size={16} /> : <Icon name="ChevronRight" size={16} />}
               </Button>
             )}
             {!hasChildren && <span className="w-6"></span>}
@@ -160,11 +182,7 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
             />
           ) : (
             // 添加默认图标逻辑
-            data.icon && LucideIcons[data.icon as keyof typeof LucideIcons] ? (
-              React.createElement(LucideIcons[data.icon as keyof typeof LucideIcons] as React.ElementType, { size: 16 })
-            ) : (
-              <LucideIcons.HelpCircle size={16} />
-            )
+            data.icon && <Icon name={data.icon} size={16} /> 
           )}
         </TableCell>
         <TableCell>
@@ -186,9 +204,9 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" onClick={handleEdit}><Edit size={16} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Trash2 size={16} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Plus size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={handleEdit}><Icon name="Edit" size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Icon name="Trash2" size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Icon name="Plus" size={16} /></Button>
             </>
           )}
         </TableCell>
@@ -217,12 +235,20 @@ const CRUDTable: React.FC = () => {
   const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
   const githubApiToken = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
   const { toast } = useToast()
+  const [availableIcons, setAvailableIcons] = useState<string[]>([]);
+  const { data: iconsData, isLoading: iconsLoading, isError: iconsError } = useGetIconsQuery();
 
   useEffect(() => {
     if (categoriesData) {
       setData(categoriesData)
     }
   }, [categoriesData])
+
+  useEffect(() => {
+    if (iconsData) {
+      setAvailableIcons(iconsData);
+    }
+  }, [iconsData]);
 
   if (isError) {
     toast({
@@ -377,8 +403,6 @@ const CRUDTable: React.FC = () => {
     }
   }
 
-  const availableIcons = useMemo(() => Object.keys(LucideIcons), []);
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">类目树</h1>
@@ -412,7 +436,7 @@ const CRUDTable: React.FC = () => {
         </TableBody>
       </Table>
       <Button className="mt-4" onClick={handleSave}>
-        <Save size={16} className="mr-2" /> 保存到 GitHub
+        <Icon name="Save" size={16} className="mr-2" /> 保存到 GitHub
       </Button>
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
         <DialogContent>
@@ -422,16 +446,29 @@ const CRUDTable: React.FC = () => {
           <AddItemForm
             onSubmit={handleAddSubmit}
             onCancel={() => setShowAddForm(false)}
-            availableIcons={availableIcons}
+            availableIcons={iconsLoading ? [] : availableIcons}
           />
         </DialogContent>
       </Dialog>
     {process.env.NODE_ENV === 'development' && (
-      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-xl font-bold mb-2">调试信息：categoriesData</h2>
-        <pre className="whitespace-pre-wrap overflow-x-auto">
-          {JSON.stringify(categoriesData, null, 2)}
-        </pre>
+      <div className="mt-8 flex space-x-4">
+        <div className="w-1/2 p-4 bg-gray-100 rounded-lg">
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="mb-2">
+                <Icon name="ChevronDown" size={16} className="h-4 w-4 mr-2" />
+                展开/折叠调试信息
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <h2 className="text-xl font-bold mb-2">调试信息：data</h2>
+              <pre className="whitespace-pre-wrap overflow-x-auto">
+                {JSON.stringify(data, null, 2)}
+                {JSON.stringify(availableIcons, null, 2)}
+              </pre>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
       </div>
     )}
     </div>
@@ -441,7 +478,6 @@ const CRUDTable: React.FC = () => {
 const CategoriesPage = () => {
   return (
     <Suspense fallback={<LoadingAnimation />}>
-      {/* 使用 useSearchParams 的部分 */}
       <CRUDTable />
     </Suspense>
   );
