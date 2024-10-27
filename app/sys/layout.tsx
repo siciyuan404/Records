@@ -8,7 +8,7 @@ import Header from './components/Header'
 import { addTab, setActiveTab } from '../store/features/tabs/tabsSlice'
 import { RootState } from '../store/store'
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation'
-import DebugWindow from './components/DebugWindow/DebugWindow'
+// import DebugWindow from './components/DebugWindow/DebugWindow'
 
 export default function SysLayout({
   children,
@@ -55,7 +55,7 @@ export default function SysLayout({
             {children}
           </main>
         </div>
-        <DebugWindow />
+        {/* <DebugWindow /> */}
       </div>
     </Suspense>
   )

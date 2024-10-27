@@ -155,21 +155,21 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
     <>
       <TableRow>
         <TableCell>
-          <div className="flex items-center space-x-2" style={{ marginLeft: `${path.length * 20}px` }}>
+          <div className="flex items-center space-x-2" style={{ marginLeft: `${path.length * 10}px` }}>
             {hasChildren && (
-              <Button variant="ghost" size="sm" onClick={handleToggle}>
-                {isExpanded ? <Icon name="ChevronDown" size={16} /> : <Icon name="ChevronRight" size={16} />}
+              <Button variant="ghost" size="sm" onClick={handleToggle} className="p-1">
+                {isExpanded ? <Icon name="ChevronDown" size={14} /> : <Icon name="ChevronRight" size={14} />}
               </Button>
             )}
-            {!hasChildren && <span className="w-6"></span>}
+            {!hasChildren && <span className="w-4"></span>}
             {isEditing ? (
               <Input
                 value={editedKey}
                 onChange={(e) => setEditedKey(e.target.value)}
-                className="w-40"
+                className="w-full max-w-[120px]"
               />
             ) : (
-              path[path.length - 1]
+              <span className="truncate max-w-[120px]">{path[path.length - 1]}</span>
             )}
           </div>
         </TableCell>
@@ -178,36 +178,35 @@ const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
             <Input
               value={editedData.icon}
               onChange={(e) => handleChange('icon', e.target.value)}
-              className="w-40"
+              className="w-full max-w-[80px]"
             />
           ) : (
-            // 添加默认图标逻辑
-            data.icon && <Icon name={data.icon} size={16} /> 
+            data.icon && <Icon name={data.icon} size={14} />
           )}
         </TableCell>
-        <TableCell>
+        <TableCell className="hidden sm:table-cell">
           {isEditing ? (
             <Input
               value={editedData.link}
               onChange={(e) => handleChange('link', e.target.value)}
-              className="w-40"
+              className="w-full max-w-[120px]"
             />
           ) : (
-            data.link
+            <span className="truncate max-w-[120px]">{data.link}</span>
           )}
         </TableCell>
         <TableCell>
           {isEditing ? (
-            <>
-              <Button onClick={handleSave}>保存</Button>
-              <Button variant="outline" onClick={handleCancelEdit}>取消</Button>
-            </>
+            <div className="flex space-x-1">
+              <Button size="sm" onClick={handleSave}><Icon name="Check" size={14} /></Button>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit}><Icon name="X" size={14} /></Button>
+            </div>
           ) : (
-            <>
-              <Button variant="ghost" size="sm" onClick={handleEdit}><Icon name="Edit" size={16} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Icon name="Trash2" size={16} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Icon name="Plus" size={16} /></Button>
-            </>
+            <div className="flex space-x-1">
+              <Button variant="ghost" size="sm" onClick={handleEdit}><Icon name="Edit" size={14} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Icon name="Trash2" size={14} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Icon name="Plus" size={14} /></Button>
+            </div>
           )}
         </TableCell>
       </TableRow>
@@ -404,39 +403,41 @@ const CRUDTable: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">类目树</h1>
+    <div className="container mx-auto p-2 sm:p-4">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4">类目树</h1>
       
 
-      <Button className="mb-4" onClick={() => setShowAddForm(true)}>
+      <Button className="mb-4 text-sm" onClick={() => setShowAddForm(true)}>
         添加新分类
       </Button>
       
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>类别</TableHead>
-            <TableHead>图标</TableHead>
-            <TableHead>链接</TableHead>
-            <TableHead>操作</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(data).map(([key, value]) => (
-            <RecursiveTableRow
-              key={key}
-              data={value}
-              path={[key]}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onAdd={handleAdd}
-              onKeyEdit={handleKeyEdit}
-            />
-          ))}
-        </TableBody>
-      </Table>
-      <Button className="mt-4" onClick={handleSave}>
-        <Icon name="Save" size={16} className="mr-2" /> 保存到 GitHub
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3">类别</TableHead>
+              <TableHead className="w-1/6">图标</TableHead>
+              <TableHead className="w-1/3 hidden sm:table-cell">链接</TableHead>
+              <TableHead className="w-1/6">操作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.entries(data).map(([key, value]) => (
+              <RecursiveTableRow
+                key={key}
+                data={value}
+                path={[key]}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onAdd={handleAdd}
+                onKeyEdit={handleKeyEdit}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <Button className="mt-4 text-sm" onClick={handleSave}>
+        <Icon name="Save" size={14} className="mr-2" /> 保存到 GitHub
       </Button>
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
         <DialogContent>

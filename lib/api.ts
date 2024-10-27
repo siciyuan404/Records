@@ -13,30 +13,23 @@ const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/master`;
 const cache: Record<string, { data: any, timestamp: number }> = {};
 const CACHE_DURATION = 60000; // 缓存时间，例如1分钟
 
-export const fetchData = async () => {
-  try {
-    const [resourcesRes, categoriesRes, tagsRes, listRes] = await Promise.all([
-      axios.get<ResourcesState>(`${rawUrl}/src/db/uuid_resource_curd.json`),
-      axios.get(`${rawUrl}/src/db/db.json`),
-      axios.get(`${rawUrl}/src/db/tabs.json`),
-      axios.get(`${rawUrl}/src/db/list.json`)
-    ]);
-    return {
-      resources: resourcesRes.data,
-      categories: categoriesRes.data,
-      tags: tagsRes.data,
-      listData: listRes.data,
-    };
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    toast({
-      title: "Error",
-      description: "Failed to fetch data. Please try again.",
-      variant: "destructive",
-    });
-    throw error;
-  }
-};
+
+// 如何使用 syncWithGithub 函数：
+
+// 1. 添加新资源
+// await syncWithGithub('add', '新资源的UUID', 新资源的数据对象);
+
+// 2. 编辑现有资源
+// await syncWithGithub('edit', '要编辑的资源UUID', 更新后的资源数据对象);
+
+// 3. 删除资源
+// await syncWithGithub('delete', '要删除的资源UUID');
+
+// 4. 更新列表文件
+// await syncWithGithub('updateList', null, 更新后的列表数据);
+
+// 5. 同步整个资源状态
+// await syncWithGithub('sync', null, null, 整个资源状态对象);
 
 export const syncWithGithub = async (action: string, uuid?: string | null, data?: any, resources?: ResourcesState) => {
   if (!owner || !repo || !token) {
@@ -220,7 +213,6 @@ export async function fetchResourceInfo(uuid: string) {
 };
 
 // list.json
-
 export async function fetchList() {
   const response = await fetch('/api/list', {
     cache: 'no-store',
