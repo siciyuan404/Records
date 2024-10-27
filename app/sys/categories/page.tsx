@@ -40,7 +40,7 @@ interface AddItemFormProps {
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel, availableIcons }) => {
-  const testAvailableIcons = ['Home', 'User', 'Settings']; // 根据 lucide-react 确认实际图标名称
+  const testAvailableIcons = ['Home', 'User', 'Settings' , 'ChevronDown', 'ChevronRight', 'Check', 'X', 'Edit', 'Trash2', 'Plus']; // 根据 lucide-react 确认实际图标名称
 
   const [formData, setFormData] = useState({ key: '', icon: '', link: '' })
 
