@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { X, ArrowUp, ArrowDown, Trash2, GithubIcon } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/app/store/store';
-import { deleteChangeRecord, moveChangeRecord ,syncToGithub} from '@/app/store/features/changeRecords/changeRecordsSlice';
+import { deleteChangeRecord, moveChangeRecord, syncToGithub } from '@/app/store/features/changeRecords/changeRecordsSlice';
+import GitHubUtils from '@/lib/githubUtils';
 
 interface ChangeHistoryDrawerProps {
   isOpen: boolean;
@@ -55,13 +56,17 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
     await dispatch(syncToGithub());
   };
 
+  const handleTest = async () => {
+    const response = await GitHubUtils.getFileContent({ owner: 'mxrain', repo: 'zyt', path: 'categories.json' });
+    console.log(response);
+  };
+
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
       <div
         ref={drawerRef}
-        className={`absolute bg-white shadow-lg rounded-tl-lg overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${
-          isOpen ? 'bottom-0 right-0 w-[80vw] h-[80vh]' : 'bottom-0 right-0 w-0 h-0'
-        }`}
+        className={`absolute bg-white shadow-lg rounded-tl-lg overflow-hidden flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'bottom-0 right-0 w-[80vw] h-[80vh]' : 'bottom-0 right-0 w-0 h-0'
+          }`}
         style={{
           maxWidth: '80vw',
           maxHeight: '80vh',
@@ -77,7 +82,7 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
           {changeRecords.map((record, index) => (
             <div key={index} className={`mb-4 p-3 rounded-lg ${getBackgroundColor(record.action)}`}>
               <div className="flex justify-between items-start mb-2">
-                <span className="font-semibold">{record.action === 'bulk' ? `批量${record.data.operation}` : record.action}</span>
+                <span className="font-semibold">{record.action === 'bulk' ? `${record.data.operation}` : record.action}</span>
                 <div>
                   <button onClick={() => handleMove(index, 'up')} className="p-1 hover:bg-gray-200 rounded-full mr-1">
                     <ArrowUp size={16} />
@@ -93,14 +98,25 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
               <pre className="text-sm overflow-x-auto">{JSON.stringify(record.data, null, 2)}</pre>
             </div>
           ))}
+          <div>
+            <pre>{JSON.stringify(changeRecords, null, 2)}</pre>
+          </div>
         </div>
+
         <div className="p-4 border-t">
           <button onClick={handleSyncToGithub} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded flex items-center justify-center">
             <GithubIcon className="mr-2" size={20} />
             同步到 GitHub
           </button>
+          <button onClick={handleTest} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded flex items-center justify-center">
+            <GithubIcon className="mr-2" size={20} />
+            test
+          </button>
         </div>
+
+
       </div>
+
     </div>
   );
 };

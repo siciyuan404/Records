@@ -2,9 +2,10 @@ import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit
 
 // 定义类别的接口
 interface CategoryData {
-  icon: string;
-  link: string;
-  items?: Record<string, CategoryData>;
+  link?: string;
+  icon?: string;
+  items?: { [key: string]: CategoryData };
+  [key: string]: any;
 }
 
 // 创建 API slice
@@ -14,12 +15,12 @@ export const categoriesApi = createApi({
   tagTypes: ['Categories'],
   endpoints: (builder) => ({
     getCategories: builder.query<Record<string, CategoryData>, void>({
-      query: () => 'categories',
+      query: () => '/categories',
       providesTags: ['Categories'],
       transformResponse: (response: any) => {
         if (response && typeof response === 'object') {
           // 检查响应是否已经是正确的格式
-          if (Object.values(response).every(value => 
+          if (Object.values(response).every(value =>
             value !== null && typeof value === 'object' && 'icon' in value && 'link' in value
           )) {
             return response;
@@ -41,10 +42,19 @@ export const categoriesApi = createApi({
         return response;
       },
     }),
+    updateCategories: builder.mutation<void, Record<string, CategoryData>>({
+      query: (categories) => ({
+        url: '/categories',
+        method: 'PUT',
+        body: categories,
+      }),
+      invalidatesTags: ['Categories'],
+    }),
   }),
 });
 
 // 导出生成的 hooks
 export const {
   useGetCategoriesQuery,
+  useUpdateCategoriesMutation,
 } = categoriesApi;

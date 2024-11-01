@@ -1,13 +1,9 @@
 "use client"
 
 import React, { useState, useEffect, Suspense } from 'react';
-
+import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { ColumnVisibilityToggle } from './components/ColumnVisibilityToggle'
-import { BulkOperationButtons } from './components/BulkOperationButtons'
-import { ResourceTable } from './components/ResourceTable'
-import { ResourceForm } from './components/ResourceForm'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Resource, ResourcesState, ColumnName } from '@/app/sys/add/types'
 import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
@@ -18,10 +14,32 @@ import { useSyncWithGithubMutation } from '@/app/store/api/githubApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
 import { RootState } from '@/app/store/store';
-import { PlusIcon, SettingsIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon, ColumnsIcon } from 'lucide-react';
+import { PlusIcon, ChevronUpIcon, ChevronDownIcon, RefreshCwIcon, ColumnsIcon } from 'lucide-react';
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 
+// 动态导入客户端组件
+const ColumnVisibilityToggle = dynamic(
+  () => import('./components/ColumnVisibilityToggle').then(mod => mod.ColumnVisibilityToggle),
+  { ssr: false }
+);
+
+const BulkOperationButtons = dynamic(
+  () => import('./components/BulkOperationButtons').then(mod => mod.BulkOperationButtons),
+  { ssr: false }
+);
+
+const ResourceTable = dynamic(
+  () => import('./components/ResourceTable').then(mod => mod.ResourceTable),
+  { ssr: false }
+);
+
+const ResourceForm = dynamic(
+  () => import('./components/ResourceForm').then(mod => mod.ResourceForm),
+  { ssr: false }
+);
+
 export default function ResourceCRUD() {
+  const [isClient, setIsClient] = useState(false);
   const [resources, setResources] = useState<ResourcesState>({});
   const [visibleColumns, setVisibleColumns] = useState<ColumnName[]>(['name', 'uuid', 'category', 'images', 'source_links', 'tags', 'uploaded', 'update_time']);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -40,13 +58,20 @@ export default function ResourceCRUD() {
   const [syncWithGithub] = useSyncWithGithubMutation();
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
     if (resourcesData) {
       setResources(resourcesData);
     }
   }, [resourcesData]);
 
   const handleAddResource = async (data: Resource) => {
-    const uuid = crypto.randomUUID();
+    const uuid = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
     const newResource = {
       ...data,
       uploaded: Date.now(),
@@ -102,14 +127,19 @@ export default function ResourceCRUD() {
   };
 
   const handleBulkOperation = async (operation: string, uuids: string[]) => {
-    dispatch(addChangeRecord({ action: 'bulk', data: { operation, uuids } }));
+    dispatch(addChangeRecord({ 
+      action: 'bulk' as const,
+      data: { operation, uuids }
+    }));
   };
 
+  if (!isClient) {
+    return <LoadingAnimation />;
+  }
+
   return (
-    <Suspense fallback={<LoadingAnimation />}>
-
-
-      <div className="mx-auto container p-4">
+    <div className="mx-auto container p-4">
+      <Suspense fallback={<LoadingAnimation />}>
         <div className="hidden sm:flex justify-between items-center mb-5">
           <Button onClick={handleSyncGithub}>同步到GitHub</Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -212,7 +242,7 @@ export default function ResourceCRUD() {
             </DialogContent>
           </Dialog>
         )}
-      </div>
-    </Suspense>
+      </Suspense>
+    </div>
   );
 }

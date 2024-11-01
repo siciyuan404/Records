@@ -30,12 +30,7 @@ export interface Resource {
   
   export type ColumnName = 'name' | 'uuid' | 'category' | 'images' | 'source_links' | 'tags' | 'uploaded' | 'update_time';
 
-export interface ChangeRecord {
-  action: 'add' | 'edit' | 'delete' | 'bulk';
-  uuid?: string;
-  data?: any;
-  listChanges?: string[];
-}
+
 
 export interface ColumnVisibilityToggleProps {
   columns: ColumnName[];

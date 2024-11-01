@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 
 function generateToken() {
   const payload = { timestamp: Date.now() };
-  return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+  return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 }
 
 function verifyToken(token: string) {
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 3600,
+      maxAge: 7 * 24 * 60 * 60, // 7天
     });
     return NextResponse.json({ success: true, token }, { status: 200 });
   } else {

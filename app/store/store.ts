@@ -10,7 +10,7 @@ import resourcesReducer from './features/resources/resourcesSlice';
 import listReducer from './features/list/listSlice';
 import tabsReducer from './features/tabs/tabsSlice';
 import changeRecordsReducer from './features/changeRecords/changeRecordsSlice';
-import { iconsApi } from './api/iconsApi';
+import { iconsApi } from './features/icons/iconsApi';
 
 export const store = configureStore({
   reducer: {

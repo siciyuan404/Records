@@ -1,487 +1,508 @@
 "use client"
 
-import React, { useState, useEffect, Suspense, useMemo } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react'
+import { ChevronRight, ChevronDown, Album, Plus, Trash2, Edit, MoveUp } from 'lucide-react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  
-} from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
-import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@/components/ui/select"
-import Icon from '@/components/ui/icon' // 新增导入自定义 Icon 组件
-import { useGetIconsQuery } from '@/app/store/api/iconsApi';
+import { useGetIconsQuery } from '@/app/store/features/icons/iconsApi';
+import * as Icons from 'lucide-react';
 
-interface CategoryData {
-  icon?: string
-  link?: string
+type CategoryData = {
+  icon: string
+  link: string
   items?: Record<string, CategoryData>
 }
 
-interface AddItemFormProps {
-  onSubmit: (formData: { key: string; icon: string; link: string }) => void
-  onCancel: () => void
-  availableIcons: string[]
-}
+type TreeData = Record<string, CategoryData>
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, onCancel, availableIcons }) => {
-  const testAvailableIcons = ['Home', 'User', 'Settings' , 'ChevronDown', 'ChevronRight', 'Check', 'X', 'Edit', 'Trash2', 'Plus']; // 根据 lucide-react 确认实际图标名称
-
-  const [formData, setFormData] = useState({ key: '', icon: '', link: '' })
-
-  const handleChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
-
-  return (
-    
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* debug模式 显示formData */}
-      <pre>{JSON.stringify(formData, null, 2)}</pre>
-      {/* 已经选择的图标展示 */}
-      <div className="grid grid-cols-2 gap-4">
-        {formData.icon && <Icon name={formData.icon} size={24} />}
-      </div>
-      <Input
-        type="text"
-        name="key"
-        value={formData.key}
-        onChange={(e) => handleChange('key', e.target.value)}
-        placeholder="类别名称"
-        required
-      />
-      <Select
-        name="icon"
-        value={formData.icon}
-        onValueChange={(value) => handleChange('icon', value)}
-        required
-      >
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="选择图标" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>图标</SelectLabel>
-            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-              {testAvailableIcons.map((icon) => (
-                <SelectItem key={icon} value={icon}>
-                  {icon}
-                </SelectItem>
-              ))}
-            </div>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Input
-        type="text"
-        name="link"
-        value={formData.link}
-        onChange={(e) => handleChange('link', e.target.value)}
-        placeholder="链接"
-      />
-      <div className="flex justify-end space-x-2">
-        <Button type="submit">添加</Button>
-        <Button variant="outline" onClick={onCancel}>取消</Button>
-      </div>
-    </form>
-  )
-}
-
-interface RecursiveTableRowProps {
-  data: CategoryData
-  path: string[]
-  onEdit: (path: string[], newData: CategoryData) => void
-  onDelete: (path: string[]) => void
-  onAdd: (path: string[]) => void
-  onKeyEdit: (path: string[], newKey: string) => void
-}
-
-const RecursiveTableRow: React.FC<RecursiveTableRowProps> = React.memo(({
-  data,
-  path,
-  onEdit,
-  onDelete,
-  onAdd,
-  onKeyEdit,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedData, setEditedData] = useState(data)
-  const [editedKey, setEditedKey] = useState(path[path.length - 1])
-
-  const handleToggle = () => setIsExpanded(!isExpanded)
-
-  const handleEdit = () => setIsEditing(true)
-
-  const handleSave = () => {
-    onEdit(path, editedData)
-    onKeyEdit(path, editedKey)
-    setIsEditing(false)
-  }
-
-  const handleChange = (field: string, value: string) => {
-    setEditedData(prev => ({ ...prev, [field]: value }))
-  }
-
-  const hasChildren = data.items && Object.keys(data.items).length > 0
-
-  const handleCancelEdit = () => {
-    setEditedData(data);
-    setEditedKey(path[path.length - 1]);
-    setIsEditing(false);
-  };
-
-  return (
-    <>
-      <TableRow>
-        <TableCell>
-          <div className="flex items-center space-x-2" style={{ marginLeft: `${path.length * 10}px` }}>
-            {hasChildren && (
-              <Button variant="ghost" size="sm" onClick={handleToggle} className="p-1">
-                {isExpanded ? <Icon name="ChevronDown" size={14} /> : <Icon name="ChevronRight" size={14} />}
-              </Button>
-            )}
-            {!hasChildren && <span className="w-4"></span>}
-            {isEditing ? (
-              <Input
-                value={editedKey}
-                onChange={(e) => setEditedKey(e.target.value)}
-                className="w-full max-w-[120px]"
-              />
-            ) : (
-              <span className="truncate max-w-[120px]">{path[path.length - 1]}</span>
-            )}
-          </div>
-        </TableCell>
-        <TableCell>
-          {isEditing ? (
-            <Input
-              value={editedData.icon}
-              onChange={(e) => handleChange('icon', e.target.value)}
-              className="w-full max-w-[80px]"
-            />
-          ) : (
-            data.icon && <Icon name={data.icon} size={14} />
-          )}
-        </TableCell>
-        <TableCell className="hidden sm:table-cell">
-          {isEditing ? (
-            <Input
-              value={editedData.link}
-              onChange={(e) => handleChange('link', e.target.value)}
-              className="w-full max-w-[120px]"
-            />
-          ) : (
-            <span className="truncate max-w-[120px]">{data.link}</span>
-          )}
-        </TableCell>
-        <TableCell>
-          {isEditing ? (
-            <div className="flex space-x-1">
-              <Button size="sm" onClick={handleSave}><Icon name="Check" size={14} /></Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}><Icon name="X" size={14} /></Button>
-            </div>
-          ) : (
-            <div className="flex space-x-1">
-              <Button variant="ghost" size="sm" onClick={handleEdit}><Icon name="Edit" size={14} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onDelete(path)}><Icon name="Trash2" size={14} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => onAdd(path)}><Icon name="Plus" size={14} /></Button>
-            </div>
-          )}
-        </TableCell>
-      </TableRow>
-      {isExpanded && hasChildren && Object.entries(data.items!).map(([key, value]) => (
-        <RecursiveTableRow
-          key={key}
-          data={value}
-          path={[...path, key]}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onAdd={onAdd}
-          onKeyEdit={onKeyEdit}
-        />
-      ))}
-    </>
-  )
-})
-
-const CRUDTable: React.FC = () => {
-  const [data, setData] = useState<Record<string, CategoryData>>({})
-  const { data: categoriesData, isLoading, isError } = useGetCategoriesQuery();
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [currentPath, setCurrentPath] = useState<string[]>([])
-  const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
-  const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
-  const githubApiToken = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
-  const { toast } = useToast()
-  const [availableIcons, setAvailableIcons] = useState<string[]>([]);
-  const { data: iconsData, isLoading: iconsLoading, isError: iconsError } = useGetIconsQuery();
-
-  useEffect(() => {
-    if (categoriesData) {
-      setData(categoriesData)
+const initialTreeData: TreeData = {
+  "影视动漫": {
+    "icon": "Album",
+    "link": "mv",
+    "items": {
+      "番剧": { "icon": "path_d_value_here", "link": "anime" },
+      "动画": { "icon": "path_d_value_here", "link": "animation" },
+      "电影": {
+        "icon": "path_d_value_here",
+        "link": "movie",
+        "items": {
+          "动作片": { "icon": "path_d_value_here", "link": "action" },
+          "喜剧片": { "icon": "path_d_value_here", "link": "comedy" }
+        }
+      },
     }
-  }, [categoriesData])
+  },
+  "软件游戏": {
+    "icon": "path_d_value_here",
+    "link": "software-game",
+    "items": {
+      "电脑软件": { "icon": "path_d_value_here", "link": "pc-software" },
+      "手机软件": { "icon": "path_d_value_here", "link": "mobile-software" },
+    }
+  },
+}
+
+const InteractiveTreeTable: React.FC = () => {
+  const { data: categoriesData, isLoading, isError } = useGetCategoriesQuery();
+  const [treeData, setTreeData] = useState<TreeData>(categoriesData as TreeData || initialTreeData);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [editingItem, setEditingItem] = useState<{ key: string, parentKey: string } | null>(null)
+  const [newItemData, setNewItemData] = useState({ name: '', link: '', icon: '', parentKey: '' })
+  const [page, setPage] = useState(1);
+  const pageSize = 60;
+  const [allIcons, setAllIcons] = useState<string[]>([]);
+
+  const { data: iconsData, isLoading: iconsLoading } = useGetIconsQuery({ 
+    page, 
+    pageSize 
+  });
 
   useEffect(() => {
-    if (iconsData) {
-      setAvailableIcons(iconsData);
+    if (iconsData?.icons) {
+      setAllIcons(prev => [...prev, ...iconsData.icons]);
     }
   }, [iconsData]);
 
-  if (isError) {
-    toast({
-      title: "错误",
-      description: "获取数据失败",
-      variant: "destructive",
-    });
+  useEffect(() => {
+    if (categoriesData) {
+      setTreeData(categoriesData as TreeData);
+    }
+  }, [categoriesData]);
+
+  const pushNewTreeData = () => {
+    console.log('pushNewTreeData',treeData)
   }
-
-  const handleEdit = (path: string[], newData: CategoryData) => {
-    setData(prevData => {
-      const updatedData = { ...prevData }
-      let current = updatedData
-      for (let i = 0; i < path.length - 1; i++) {
-        current = (current as any)[path[i]]?.items || (current as any)[path[i]]
-      }
-      if (typeof current === 'object' && path[path.length - 1] in current) {
-        delete (current as Record<string, CategoryData>)[path[path.length - 1]]
-      }
-      current[path[path.length - 1]] = newData as Record<string, CategoryData>;
-      return updatedData
-    })
-  }
-
-  const handleKeyEdit = (path: string[], newKey: string) => {
-    setData(prevData => {
-      const updatedData = { ...prevData }
-      let current = updatedData
-      for (let i = 0; i < path.length - 1; i++) {
-        if (current[path[i]] && current[path[i]].items) {
-          current = current[path[i]].items!
-        } else {
-          return prevData
-        }
-      }
-      if (current[path[path.length - 1]] && path[path.length - 1] !== newKey) {
-        current[newKey] = current[path[path.length - 1]]
-        delete current[path[path.length - 1]]
-      }
-      return updatedData
-    })
-  }
-
-  const handleDelete = (path: string[]) => {
-    setData(prevData => {
-      const updatedData = { ...prevData }
-      let current = updatedData
-      for (let i = 0; i < path.length - 1; i++) {
-        if (current[path[i]] && 'items' in current[path[i]]) {
-          current = current[path[i]].items as Record<string, CategoryData>;
-        } else {
-          current = current[path[i]] as Record<string, CategoryData>;
-        }
-      }
-      delete current[path[path.length - 1]]
-      return updatedData
-    })
-  }
-
-  const handleAdd = (path: string[]) => {
-    setCurrentPath(path)
-    setShowAddForm(true)
-  }
-
-  const handleAddSubmit = (formData: { key: string; icon: string; link: string }) => {
-    setData(prevData => {
-      const updatedData = { ...prevData }
-      let current = updatedData
-      for (let i = 0; i < currentPath.length; i++) {
-        if (!current[currentPath[i]]) {
-          current[currentPath[i]] = {}
-        }
-        if (!current[currentPath[i]].items) {
-          current[currentPath[i]].items = {}
-        }
-        current = current[currentPath[i]].items!
-      }
-      current[formData.key] = { icon: formData.icon, link: formData.link }
-      return updatedData
-    })
-    setShowAddForm(false)
-  }
-
-  const handleSave = async () => {
-    try {
-      const { sha, content: currentContent } = await getLatestFileContent()
-
-      const newContent = JSON.stringify(data, null, 2)
-      if (currentContent === newContent) {
-        toast({
-          title: "提示",
-          description: "没有变更需要保存",
-        })
-        return
-      }
-
-      const encodedContent = btoa(unescape(encodeURIComponent(newContent)))
-
-      const response = await axios.put(
-        `https://api.github.com/repos/${owner}/${repo}/contents/src/db/db.json`,
-        {
-          message: 'Update db.json via admin dashboard',
-          content: encodedContent,
-          sha: sha,
-          branch: 'master'
-        },
-        {
-          headers: {
-            Authorization: `token ${githubApiToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-
-      toast({
-        title: "成功",
-        description: "数据已成功保存到 GitHub 的 master 分支",
-      })
-    } catch (error: any) {
-      if (error.response && error.response.status === 409) {
-        toast({
-          title: "错误",
-          description: "保存失败：文件已被其他人修改。请刷新页面获取最新内容后再试。",
-          variant: "destructive",
-        })
+  
+  const toggleRow = (rowKey: string) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(rowKey)) {
+        newSet.delete(rowKey)
       } else {
-        console.error('Error saving data:', error)
-        toast({
-          title: "错误",
-          description: "保存数据时出错，请查看控制台以获取更多信息",
-          variant: "destructive",
-        })
+        newSet.add(rowKey)
       }
-    }
+      return newSet
+    })
   }
 
-  const getLatestFileContent = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.github.com/repos/${owner}/${repo}/contents/src/db/db.json?ref=master`,
-        {
-          headers: {
-            Authorization: `token ${githubApiToken}`
+  const addItem = (parentKey: string = 'root') => {
+    if (!newItemData.name || !newItemData.link || !newItemData.icon) {
+      return;
+    }
+
+    setTreeData((prevData) => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      const newItem = { 
+        icon: newItemData.icon, 
+        link: newItemData.link 
+      };
+
+      if (parentKey === 'root') {
+        newData[newItemData.name] = newItem;
+      } else {
+        const keys = parentKey.split('-');
+        let current = newData;
+        
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) return prevData;
+          if (!current[keys[i]].items) {
+            current[keys[i]].items = {};
+          }
+          current = current[keys[i]].items;
+        }
+
+        const lastKey = keys[keys.length - 1];
+        if (!current[lastKey]) return prevData;
+        if (!current[lastKey].items) {
+          current[lastKey].items = {};
+        }
+        current[lastKey].items[newItemData.name] = newItem;
+      }
+
+      return newData;
+    });
+
+    setNewItemData({ name: '', link: '', icon: '', parentKey: '' });
+  };
+
+  const deleteItem = (key: string, parentKey: string = '') => {
+    setTreeData((prevData) => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      if (parentKey) {
+        const keys = parentKey.split('-');
+        let current = newData;
+        for (let i = 0; i < keys.length - 1; i++) {
+          current = current[keys[i]].items;
+        }
+        delete current[keys[keys.length - 1]].items[key];
+      } else {
+        delete newData[key];
+      }
+      return newData;
+    });
+  };
+
+  const editItem = (key: string, parentKey: string = '') => {
+    setEditingItem({ key, parentKey })
+  }
+
+  const saveEdit = (newName: string, newLink: string, newIcon: string) => {
+    if (!editingItem) return;
+    setTreeData((prevData) => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      const { key, parentKey } = editingItem;
+      let itemToEdit;
+      if (parentKey) {
+        const keys = parentKey.split('-');
+        let current = newData;
+        for (let i = 0; i < keys.length; i++) {
+          current = current[keys[i]].items;
+        }
+        itemToEdit = current[key];
+      } else {
+        itemToEdit = newData[key];
+      }
+      itemToEdit.link = newLink;
+      itemToEdit.icon = newIcon;
+      if (key !== newName) {
+        if (parentKey) {
+          const keys = parentKey.split('-');
+          let current = newData;
+          for (let i = 0; i < keys.length; i++) {
+            current = current[keys[i]].items;
+          }
+          current[newName] = itemToEdit;
+          delete current[key];
+        } else {
+          newData[newName] = itemToEdit;
+          delete newData[key];
+        }
+      }
+      return newData;
+    });
+    setEditingItem(null);
+  };
+
+  const changeParent = (key: string, oldParentKey: string, newParentKey: string) => {
+    setTreeData((prevData) => {
+      const newData = JSON.parse(JSON.stringify(prevData))
+      let item
+
+      if (oldParentKey === "root") {
+        item = { ...newData[key] }
+        delete newData[key]
+      } else {
+        const oldKeys = oldParentKey.split('-')
+        let oldCurrent = newData
+        for (let i = 0; i < oldKeys.length; i++) {
+          if (i === oldKeys.length - 1) {
+            if (oldCurrent[oldKeys[i]]?.items) {
+              item = { ...oldCurrent[oldKeys[i]].items[key] }
+              delete oldCurrent[oldKeys[i]].items[key]
+            }
+          } else {
+            oldCurrent = oldCurrent[oldKeys[i]]?.items || {}
           }
         }
-      )
-      const content = atob(response.data.content)
-      return { sha: response.data.sha, content }
-    } catch (error) {
-      console.error('Error getting latest file content:', error)
-      throw error
-    }
+      }
+
+      if (item) {
+        if (newParentKey === "root") {
+          newData[key] = item
+        } else {
+          const newKeys = newParentKey.split('-')
+          let newCurrent = newData
+          for (let i = 0; i < newKeys.length; i++) {
+            if (i === newKeys.length - 1) {
+              if (!newCurrent[newKeys[i]].items) {
+                newCurrent[newKeys[i]].items = {}
+              }
+              newCurrent[newKeys[i]].items[key] = item
+            } else {
+              newCurrent = newCurrent[newKeys[i]]?.items || {}
+            }
+          }
+        }
+      }
+
+      return newData
+    })
   }
+
+  const renderTreeNodes = (nodes: TreeData | undefined, depth: number = 0, parentKey: string = '') => {
+    if (!nodes) return null;
+    
+    return Object.entries(nodes).map(([key, node]) => {
+      const fullKey = parentKey ? `${parentKey}-${key}` : key
+      const isExpanded = expandedRows.has(fullKey)
+      const hasChildren = node.items && Object.keys(node.items).length > 0
+
+      return (
+        <React.Fragment key={fullKey}>
+          <TableRow>
+            <TableCell className="relative">
+              <div style={{ paddingLeft: `${depth * 20}px` }} className="flex items-center">
+                {hasChildren && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="mr-2"
+                    onClick={() => toggleRow(fullKey)}
+                  >
+                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </Button>
+                )}
+                {depth > 0 && (
+                  <div
+                    className="absolute left-0 top-0 bottom-0 border-l border-gray-200"
+                    style={{ left: `${(depth - 1) * 20 + 10}px` }}
+                  />
+                )}
+                {key}
+              </div>
+            </TableCell>
+            <TableCell>{node.link}</TableCell>
+            <TableCell>
+              <Album className="h-4 w-4" />
+            </TableCell>
+            <TableCell>
+              <div className="flex space-x-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={() => editItem(key, parentKey)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>编辑项目</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <Input
+                        placeholder="名称"
+                        defaultValue={key}
+                        onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
+                      />
+                      <Input
+                        placeholder="链接"
+                        defaultValue={node.link}
+                        onChange={(e) => setNewItemData({ ...newItemData, link: e.target.value })}
+                      />
+                      <Select 
+                        defaultValue={node.icon}
+                        onValueChange={(value) => setNewItemData({ ...newItemData, icon: value })}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue>
+                            {newItemData.icon || node.icon ? (
+                              <div className="flex items-center">
+                                {React.createElement(
+                                  (Icons as unknown as Record<string, React.ComponentType>)[newItemData.icon || node.icon] || Icons.HelpCircle,
+                                  { className: "h-4 w-4 mr-2" } as React.SVGProps<SVGSVGElement>
+                                )}
+                                {newItemData.icon || node.icon}
+                              </div>
+                            ) : (
+                              "选择图标"
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="h-[300px]">
+                          <div className="grid grid-cols-10 gap-2 p-2">
+                            {allIcons.map(iconName => {
+                              const IconComponent = Icons[iconName as keyof typeof Icons] as React.ElementType;
+                              return (
+                                <SelectItem key={iconName} value={iconName} className="p-0">
+                                  <div className="group relative flex items-center justify-center w-[50px] h-[50px] hover:bg-gray-50 rounded">
+                                    <IconComponent className="h-8 w-8" />
+                                    <span className="absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 
+                                      text-xs bg-gray-800 text-white px-2 py-1 rounded 
+                                      opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                                      whitespace-nowrap z-50">
+                                      {iconName}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </div>
+                          {iconsLoading && (
+                            <div className="p-2 text-center">加载中...</div>
+                          )}
+                          {iconsData?.total && allIcons.length < iconsData.total && (
+                            <Button 
+                              variant="ghost" 
+                              className="w-full"
+                              onClick={() => setPage(p => p + 1)}
+                            >
+                              加载更多
+                            </Button>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <Button onClick={() => saveEdit(newItemData.name, newItemData.link, newItemData.icon)}>
+                        保存
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Button variant="outline" size="icon" onClick={() => deleteItem(key, parentKey)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <Select onValueChange={(value) => changeParent(key, parentKey || "root", value)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="移动到..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="root">根目录</SelectItem>
+                    {renderMoveOptions(treeData, fullKey)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </TableCell>
+          </TableRow>
+          {isExpanded && node.items && renderTreeNodes(node.items, depth + 1, fullKey)}
+        </React.Fragment>
+      )
+    })
+  }
+
+  const renderMoveOptions = (nodes: TreeData | undefined, currentKey: string, parentKey: string = '', depth: number = 0) => {
+    if (!nodes) return [];
+    
+    return Object.entries(nodes).flatMap(([key, node]) => {
+      const fullKey = parentKey ? `${parentKey}-${key}` : key;
+      if (fullKey === currentKey) return [];
+      const options = [
+        <SelectItem key={fullKey} value={fullKey}>
+          <span className="inline-block" style={{ marginLeft: `${depth * 16}px` }}>
+            {key}
+          </span>
+        </SelectItem>
+      ];
+      if (node.items) {
+        options.push(...renderMoveOptions(node.items, currentKey, fullKey, depth + 1));
+      }
+      return options;
+    });
+  };
 
   return (
-    <div className="container mx-auto p-2 sm:p-4">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4">类目树</h1>
-      
-
-      <Button className="mb-4 text-sm" onClick={() => setShowAddForm(true)}>
-        添加新分类
-      </Button>
-      
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3">类别</TableHead>
-              <TableHead className="w-1/6">图标</TableHead>
-              <TableHead className="w-1/3 hidden sm:table-cell">链接</TableHead>
-              <TableHead className="w-1/6">操作</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Object.entries(data).map(([key, value]) => (
-              <RecursiveTableRow
-                key={key}
-                data={value}
-                path={[key]}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onAdd={handleAdd}
-                onKeyEdit={handleKeyEdit}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <Button className="mt-4 text-sm" onClick={handleSave}>
-        <Icon name="Save" size={14} className="mr-2" /> 保存到 GitHub
-      </Button>
-      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+    <div className="space-y-4">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            添加新项目
+          </Button>
+        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>添加新项目</DialogTitle>
           </DialogHeader>
-          <AddItemForm
-            onSubmit={handleAddSubmit}
-            onCancel={() => setShowAddForm(false)}
-            availableIcons={iconsLoading ? [] : availableIcons}
-          />
+          <div className="grid gap-4 py-4">
+            <Input
+              placeholder="名称"
+              value={newItemData.name}
+              onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
+            />
+            <Input
+              placeholder="链接"
+              value={newItemData.link}
+              onChange={(e) => setNewItemData({ ...newItemData, link: e.target.value })}
+            />
+            <Select onValueChange={(value) => setNewItemData({ ...newItemData, icon: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue>
+                  {newItemData.icon ? (
+                    <div className="flex items-center">
+                      {React.createElement(
+                        (Icons as unknown as Record<string, React.ComponentType>)[newItemData.icon] || Icons.HelpCircle,
+                        { className: "h-4 w-4 mr-2" } as React.SVGProps<SVGSVGElement>
+                      )}
+                      {newItemData.icon}
+                    </div>
+                  ) : (
+                    "选择图标"
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="h-[300px]">
+                <div className="grid grid-cols-10 gap-2 p-2">
+                  {allIcons.map(iconName => {
+                    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ElementType;
+                    return (
+                      <SelectItem key={iconName} value={iconName} className="p-0">
+                        <div className="group relative flex items-center justify-center w-[50px] h-[50px] hover:bg-gray-50 rounded">
+                          <IconComponent className="h-8 w-8" />
+                          <span className="absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 
+                            text-xs bg-gray-800 text-white px-2 py-1 rounded 
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                            whitespace-nowrap z-50">
+                            {iconName}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </div>
+                {iconsLoading && (
+                  <div className="p-2 text-center">加载中...</div>
+                )}
+                {iconsData?.total && allIcons.length < iconsData.total && (
+                  <Button 
+                    variant="ghost" 
+                    className="w-full"
+                    onClick={() => setPage(p => p + 1)}
+                  >
+                    加载更多
+                  </Button>
+                )}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={(value) => setNewItemData({ ...newItemData, parentKey: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="选择父类别" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="root">根目录</SelectItem>
+                {renderMoveOptions(treeData, "")}
+              </SelectContent>
+            </Select>
+            <Button onClick={() => addItem(newItemData.parentKey || 'root')}>添加</Button>
+          </div>
         </DialogContent>
       </Dialog>
-    {process.env.NODE_ENV === 'development' && (
-      <div className="mt-8 flex space-x-4">
-        <div className="w-1/2 p-4 bg-gray-100 rounded-lg">
-          <Collapsible>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="mb-2">
-                <Icon name="ChevronDown" size={16} className="h-4 w-4 mr-2" />
-                展开/折叠调试信息
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <h2 className="text-xl font-bold mb-2">调试信息：data</h2>
-              <pre className="whitespace-pre-wrap overflow-x-auto">
-                {JSON.stringify(data, null, 2)}
-                {JSON.stringify(availableIcons, null, 2)}
-              </pre>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>名称</TableHead>
+            <TableHead>链接</TableHead>
+            <TableHead>图标</TableHead>
+            <TableHead>操作</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {renderTreeNodes(treeData)}
+        </TableBody>
+      </Table>
+      <Button onClick={() => pushNewTreeData()}>提交</Button>
+      <div>
+        <pre>{JSON.stringify(treeData, null, 2)}</pre>
       </div>
-    )}
     </div>
   )
 }
 
-const CategoriesPage = () => {
-  return (
-    <Suspense fallback={<LoadingAnimation />}>
-      <CRUDTable />
-    </Suspense>
-  );
-};
 
-export default CategoriesPage
+export default function Component() {
+  return (
+    <div className="container mx-auto py-10">
+      <InteractiveTreeTable />
+    </div>
+  )
+}

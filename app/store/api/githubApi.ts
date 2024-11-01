@@ -1,7 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Resource, ResourcesState } from '@/app/sys/add/types';
 import axios from 'axios';
-import { ChangeRecord } from '@/app/sys/add/types';
+interface ChangeRecord {
+  action: 'add' | 'edit' | 'delete' | 'bulk';
+  uuid?: string;
+  data?: Resource | { operation: string; uuids: string[] };
+}
+
 
 interface SyncPayload {
   action: 'add' | 'edit' | 'delete' | 'updateList' | 'sync';
@@ -9,7 +14,7 @@ interface SyncPayload {
   data?: Resource | ResourcesState | any; // 使用更具体的类型替换 'any'
 }
 
-const GITHUB_API_URL = 'https://api.github.com/repos//你的仓库/contents/变更记录.json';
+const GITHUB_API_URL = 'https://api.github.com/repos/mxrain/zyt/contents/变更记录.json';
 
 export const githubApi = createApi({
   reducerPath: 'githubApi',
