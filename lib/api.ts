@@ -4,7 +4,7 @@ import { toast } from '@/hooks/use-toast';
 
 const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
 const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
-const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+const token = process.env.GITHUB_TOKEN;
 
 const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
 const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/master`;
