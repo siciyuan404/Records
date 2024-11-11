@@ -47,7 +47,7 @@ export default function VerifyPage() {
     const siteKey = process.env.RECAPTCHA_SITE_KEY || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (!siteKey) {
         console.error('ReCAPTCHA sitekey is missing. Please set RECAPTCHA_SITE_KEY in your environment variables.');
-        return <div>配置错误，请联系管理员。</div>;
+        return <div>{siteKey}</div>;
     }
 
     const handleCaptchaChange = (value: string | null) => {
