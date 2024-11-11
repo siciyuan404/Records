@@ -44,10 +44,9 @@ export default function VerifyPage() {
     const [captchaVerified, setCaptchaVerified] = useState(false);
     const [captchaModalOpen, setCaptchaModalOpen] = useState(false); // 管理弹窗状态
     const recaptchaRef = useRef<ReCAPTCHA>(null); // 引用 reCAPTCHA 组件
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || process.env.RECAPTCHA_SITE_KEY;
     if (!siteKey) {
-        console.error('ReCAPTCHA sitekey is missing. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your environment variables.');
+        console.error('ReCAPTCHA sitekey is missing. Please set RECAPTCHA_SITE_KEY in your environment variables.');
         return <div>配置错误，请联系管理员。</div>;
     }
 
