@@ -35,7 +35,7 @@ function useToken() {
 
 // 验证页面的主组件
 export default function VerifyPage() {
-    // 使用useState hook管理组件状态
+    // 使用useState hook管理组件态
     const [status, setStatus] = useState<'idle' | 'verifying' | 'success' | 'failure'>('idle'); // 验证状态
     const [password, setPassword] = useState(''); // 用户输入的密码
     const router = useRouter(); // 用于页面导航
@@ -44,7 +44,12 @@ export default function VerifyPage() {
     const [captchaVerified, setCaptchaVerified] = useState(false);
     const [captchaModalOpen, setCaptchaModalOpen] = useState(false); // 管理弹窗状态
     const recaptchaRef = useRef<ReCAPTCHA>(null); // 引用 reCAPTCHA 组件
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+    if (!siteKey) {
+        console.error('ReCAPTCHA sitekey is missing. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your environment variables.');
+        return <div>配置错误，请联系管理员。</div>;
+    }
 
     const handleCaptchaChange = (value: string | null) => {
         if (value) {
@@ -146,7 +151,7 @@ export default function VerifyPage() {
                 >
                     {status === 'failure' ? '重新验证' : '验证'}
                 </button>
-                {/* 新增：弹窗模态框 */}
+                {/* 增：弹窗模态框 */}
                 {captchaModalOpen && (
                     <div className={styles.modal}>
                         <div className={styles.modalContent}>
