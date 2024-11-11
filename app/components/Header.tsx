@@ -7,12 +7,7 @@ import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store/store';
-
-interface CategoryData {
-  icon: string;
-  link: string;
-  items?: Record<string, CategoryData>;
-}
+import { CategoryData } from '@/app/types';
 
 interface CategoryMenuProps {
   categories: Record<string, CategoryData>;
@@ -119,7 +114,7 @@ const Header: React.FC = () => {
                 </button>
                 {isMenuOpen && (
                   <div className={styles.menuDropdown}>
-                    <CategoryMenu categories={categories} />
+                    <CategoryMenu categories={categories as Record<string, CategoryData>} />
                   </div>
                 )}
               </div>
@@ -130,7 +125,7 @@ const Header: React.FC = () => {
           ) : (
             <div className={styles.errorMessage}>没有可用的分类数据</div>
           )}
-        </nav>
+        </nav> 
       </div>
     </header>
   );
