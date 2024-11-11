@@ -10,7 +10,6 @@ import { useGetCategoriesQuery } from '@/app/store/api/categoriesApi';
 import { useGetTagsQuery } from '@/app/store/api/tagsApi';
 import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
 import { useGetListItemsQuery } from '@/app/store/api/listApi';
-import { useSyncWithGithubMutation } from '@/app/store/api/githubApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addChangeRecord, clearChangeRecords } from '@/app/store/features/changeRecords/changeRecordsSlice';
 import { RootState } from '@/app/store/store';
@@ -55,7 +54,7 @@ export default function ResourceCRUD() {
   const { data: tagsData, refetch: refetchTags } = useGetTagsQuery();
   const { data: resourcesData, refetch: refetchResources } = useGetResourcesQuery();
   const { data: listData, refetch: refetchListData } = useGetListItemsQuery();
-  const [syncWithGithub] = useSyncWithGithubMutation();
+
 
   useEffect(() => {
     setIsClient(true);
@@ -108,17 +107,17 @@ export default function ResourceCRUD() {
       switch (record.action) {
         case 'add':
         case 'edit':
-          await syncWithGithub({ action: record.action, uuid: record.uuid, data: record.data });
+          // await syncWithGithub({ action: record.action, uuid: record.uuid, data: record.data });
           break;
         case 'delete':
-          await syncWithGithub({ action: 'delete', uuid: record.uuid });
+          // await syncWithGithub({ action: 'delete', uuid: record.uuid });
           break;
         case 'bulk':
-          await syncWithGithub({ action: 'updateList', data: listData });
+          // await syncWithGithub({ action: 'updateList', data: listData });
           break;
       }
     }
-    await syncWithGithub({ action: 'sync', data: resources });
+    // await syncWithGithub({ action: 'sync', data: resources });
     dispatch(clearChangeRecords());
     toast({
       title: "成功",

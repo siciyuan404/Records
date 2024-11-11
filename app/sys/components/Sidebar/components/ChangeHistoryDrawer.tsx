@@ -3,7 +3,7 @@ import { X, ArrowUp, ArrowDown, Trash2, GithubIcon } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/app/store/store';
 import { deleteChangeRecord, moveChangeRecord, syncToGithub } from '@/app/store/features/changeRecords/changeRecordsSlice';
-import GitHubUtils from '@/lib/githubUtils';
+
 
 interface ChangeHistoryDrawerProps {
   isOpen: boolean;
@@ -57,8 +57,7 @@ const ChangeHistoryDrawer: React.FC<ChangeHistoryDrawerProps> = ({ isOpen, onClo
   };
 
   const handleTest = async () => {
-    const response = await GitHubUtils.getFileContent({ owner: 'mxrain', repo: 'zyt', path: 'categories.json' });
-    console.log(response);
+    
   };
 
   return (
