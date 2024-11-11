@@ -36,7 +36,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   const { data: resources, isLoading: isResourcesLoading, isError: isResourcesError } = useGetResourcesQuery();
 
   const categoryPath = useMemo(() =>
-    categories ? findCategoryPath(categories, params.slug) : []
+    categories ? findCategoryPath(categories as Record<string, Category>, params.slug) : []
     , [categories, params.slug]);
 
   const currentCategory = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1] : params.slug;
