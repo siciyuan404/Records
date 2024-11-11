@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
         console.error('创建问题时出错:', error);
         return NextResponse.json(
             { error: "创建问题失败" },
+            
             { status: 500 }
         );
     }
