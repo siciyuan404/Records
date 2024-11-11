@@ -47,7 +47,7 @@ export default function VerifyPage() {
     const siteKey = process.env.RECAPTCHA_SITE_KEY || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (!siteKey) {
         console.error('ReCAPTCHA sitekey is missing. Please set RECAPTCHA_SITE_KEY in your environment variables.');
-        return <div>{siteKey}</div>;
+        return <div>{process.env.VERIFY_PASSWORD}</div>;
     }
 
     const handleCaptchaChange = (value: string | null) => {
