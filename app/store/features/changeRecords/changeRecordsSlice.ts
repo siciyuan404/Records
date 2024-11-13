@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { RootState } from '@/app/store/store';
 
 // 首先定义 ChangeRecord 类型
 export interface ChangeRecord {
@@ -70,6 +71,7 @@ const changeRecordsSlice = createSlice({
         state.selectedRecords.splice(index, 1);
       }
     },
+
     // 删除选中的变更记录
     deleteSelectedRecords: (state) => {
       // 从大到小排序，以避免删除时索引变化的问题
@@ -116,7 +118,7 @@ export const processChangeRecord = (record: ChangeRecord) => {
 
     case 'edit':
       if (!record.uuid || !record.data) {
-        throw new Error('编辑操作必���包含 uuid 和 data 字段');
+        throw new Error('编辑操作必包含 uuid 和 data 字段');
       }
       return {
         type: '编辑',
@@ -136,9 +138,12 @@ export const processChangeRecord = (record: ChangeRecord) => {
       };
 
     case 'bulk':
-      if (!record.data || !Array.isArray(record.data)) {
-        throw new Error('批量操作必须包含数组类型的 data 字段');
+      if (!record.data) {
+        throw new Error('批量操作必须包含 data 字段');
       }
+      // if (!record.data || !Array.isArray(record.data)) {
+      //   throw new Error('批量操作必须包含数组类型的 data 字段');
+      // }
       return {
         type: '批量操作',
         description: `批量处理 ${record.data.length} 条记录`,
@@ -146,14 +151,26 @@ export const processChangeRecord = (record: ChangeRecord) => {
       };
 
     default:
-      throw new Error('未知的操作类型');
+      return {
+        type: '未知操作',
+        description: `未知的操作类型: ${record.action}`
+      };
   }
 };
 
 // 修改同步方法
+// 这个函数用于将变更记录同步到 GitHub 仓库
+// 通过调用 GitHub API 将数据更新到指定的文件中
+// 参数说明:
+// - owner: GitHub 仓库所有者
+// - repo: GitHub 仓库名称 
+// - path: 要更新的文件路径
+// - content: 文件内容
+// - sha: 文件的 SHA 值,用于版本控制
 export const syncToGithub = createAsyncThunk(
   'changeRecords/syncToGithub',
   async (_, { getState }) => {
+    // 发送 POST 请求到 GitHub API
     const response = await fetch('/api/github', {
       method: 'POST',
       headers: {
@@ -161,22 +178,97 @@ export const syncToGithub = createAsyncThunk(
       },
       body: JSON.stringify({
         action: 'updateFile',
-        owner: process.env.NEXT_PUBLIC_GITHUB_OWNER,
-        repo: process.env.NEXT_PUBLIC_GITHUB_REPO,
-        path: 'path/to/your/file',
-        content: 'your content',
-        sha: 'file-sha'
+        owner: process.env.NEXT_PUBLIC_GITHUB_OWNER, // GitHub 仓库所有者
+        repo: process.env.NEXT_PUBLIC_GITHUB_REPO,   // GitHub 仓库名称
+        path: 'path/to/your/file',  // 要更新的文件路径
+        content: 'your content',     // 文件内容
+        sha: 'file-sha'             // 文件的 SHA 值
       })
     });
 
+    // 检查响应状态
     if (!response.ok) {
       throw new Error('Failed to sync with GitHub');
     }
 
+    // 返回响应数据
     return await response.json();
   }
 );
 
+const fetchFileSha = async (owner: string, repo: string, path: string): Promise<string> => {
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const response = await fetch(apiUrl, {
+    headers: {
+      'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('获取文件 SHA 失败');
+  }
+
+  const data = await response.json();
+  return data.sha;
+};
+
+export const syncToGithub2 = createAsyncThunk(
+  'changeRecords/syncToGithub2',
+  async (_, { getState, dispatch }) => {
+    const state = getState() as RootState;
+    console.log('state:', state.changeRecords.records);
+
+
+    // 逐一处理变更记录
+    const processedChanges = state.changeRecords.records.map(record => processChangeRecord(record));
+    processedChanges.forEach(change => {
+      console.log('change:', change);
+    });
+    // 整理同步内容
+    // const content = processedChanges.map(change => change.description).join('\n');
+    // console.log('content:', content);
+    
+    // try {
+    //   // 获取文件的最新 SHA
+    //   const fileSha = await fetchFileSha(
+    //     process.env.NEXT_PUBLIC_GITHUB_OWNER!,
+    //     process.env.NEXT_PUBLIC_GITHUB_REPO!,
+    //     'path/to/your/file'
+    //   );
+
+    //   // 发送统一请求到 GitHub
+    //   const response = await fetch('/api/github/updateFile', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       owner: process.env.NEXT_PUBLIC_GITHUB_OWNER, // GitHub 仓库所有者
+    //       repo: process.env.NEXT_PUBLIC_GITHUB_REPO,   // GitHub 仓库名称
+    //       path: 'path/to/your/file',                    // 要更新的文件路径
+    //       content: btoa(content),                       // 文件内容进行Base64编码
+    //       sha: fileSha                                  // 文件的 SHA 值
+    //     })
+    //   });
+      
+    //   if (!response.ok) {
+    //     const errorData = await response.json();
+    //     throw new Error(errorData.error || 'GitHub 同步失败');
+    //   }
+      
+    //   const data = await response.json();
+    //   console.log('GitHub 同步成功:', data);
+      
+    //   // 同步成功后，清空变更记录
+    //   dispatch(clearChangeRecords());
+      
+    // } catch (error) {
+    //   console.error('GitHub 同步错误:', error);
+    //   throw error;
+    // }
+  }
+);
 
 
 
