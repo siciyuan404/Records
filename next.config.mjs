@@ -32,7 +32,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'records-git-fix-hydration-errors-mxrain.vercel.app'],
+      allowedOrigins: ['localhost:3001', '4040000.xyz','challenges.cloudflare.com’'],
     },
     serverComponentsExternalPackages: ['sharp'],
   },
