@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import 'nprogress/nprogress.css';
 import ClientLayout from './ClientLayout';
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         `}</style>
       </head>
       <body>
+        <GoogleAnalytics />
         <Providers>
           <Suspense fallback={<LoadingAnimation />}>
             <ClientLayout>

@@ -5,11 +5,15 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation'
+import { usePageTracking } from '@/hooks/usePageTracking'
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isMounted, setIsMounted] = useState(false)
+
+  // 添加页面跟踪
+  usePageTracking();
 
   useEffect(() => {
     setIsMounted(true)
