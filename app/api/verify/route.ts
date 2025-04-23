@@ -169,12 +169,13 @@ export async function POST(request: Request) {
     } 
     // 处理密码验证
     else if (password) {
-      if (password !== process.env.VERIFY_PASSWORD) {
-        console.log('密码验证失败，输入密码:', password, '存储密码:', process.env.VERIFY_PASSWORD);
+      const passwordEnvKey = process.env.AUTH_PASSWORD_ENV_KEY || 'ADMIN_PASSWORD';
+      if (password !== process.env[passwordEnvKey]) {
+        console.log('密码验证失败，输入密码:', password, '存储密码:', process.env[passwordEnvKey]);
         // 密码不匹配
         return NextResponse.json({ 
           error: '密码错误',
-          hint: '请检查环境变量VERIFY_PASSWORD是否包含正确的密码'
+          hint: `请检查环境变量${passwordEnvKey}是否包含正确的密码`
         }, { status: 400 });
       }
     } 

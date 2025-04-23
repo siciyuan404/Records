@@ -9,10 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 const Card = ({ className, children }: { className?: string; children: React.ReactNode }) => (
   <div className={`border rounded-md shadow-sm ${className}`}>{children}</div>
 );
-const CardHeader = ({ children }: { children: React.ReactNode }) => <div className="p-4">{children}</div>;
-const CardTitle = ({ className, children }: { className?: string; children: React.ReactNode }) => (
-  <h3 className={`text-lg font-semibold ${className}`}>{children}</h3>
-);
+
 const CardContent = ({ className, children }: { className?: string; children: React.ReactNode }) => (
   <div className={`p-4 ${className}`}>{children}</div>
 );
@@ -47,6 +44,7 @@ export default function SimpleLogin() {
   const { toast } = useToast();
   const [password, setPassword] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0); // 用于强制刷新Turnstile组件
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -109,6 +107,8 @@ export default function SimpleLogin() {
         throw new Error(data.message || '登录失败');
       }
     } catch (err) {
+      setTurnstileToken(null); // 重置验证token
+      setTurnstileKey(prev => prev + 1); // 强制刷新Turnstile组件
       toast({
         title: "登录失败",
         description: err instanceof Error ? err.message : undefined,
@@ -137,6 +137,7 @@ export default function SimpleLogin() {
 
             {/* 人机验证占位区域 */}
             <Turnstile
+                key={turnstileKey} // 使用key强制刷新
                 sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
                 onSuccess={(token) => {
                   setTurnstileToken(token);

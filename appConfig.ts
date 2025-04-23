@@ -6,7 +6,6 @@ export const config = {
   // 如果process.env.NEXT_PUBLIC_GITHUB_OWNER和process.env.NEXT_PUBLIC_GITHUB_REPO为空，则使用默认值mxrain 
   GITHUB_API_URL: `https://api.github.com`,
   apiBaseUrl: `https://raw.gitmirror.com/${process.env.NEXT_PUBLIC_GITHUB_OWNER || 'mxrain'}/${process.env.NEXT_PUBLIC_GITHUB_REPO || 'zyt'}/refs/heads/master/db`,
-  resourceBaseUrl: `https://raw.gitmirror.com/${process.env.NEXT_PUBLIC_GITHUB_RESOURCES_OWNER || 'mxrain'}/${process.env.NEXT_PUBLIC_GITHUB_RESOURCES_REPO || 'resources'}/refs/heads/master`,
   maxRetries: 3,
   timeout: 5000,
   // 添加更多配置项...
