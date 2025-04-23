@@ -3,7 +3,12 @@
 import Script from 'next/script';
 
 export default function GoogleAnalytics() {
-  const GA_MEASUREMENT_ID = 'G-LSHMB96X28';
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
+  
+  if (!GA_MEASUREMENT_ID) {
+    console.warn('Google Analytics ID 未配置');
+    return null;
+  }
   
   return (
     <>
