@@ -5,6 +5,8 @@ const nextConfig = {
     domains: [
       'picsum.photos', 
       'api.btstu.cn', 
+      '4040000.xyz',
+      'challenges.cloudflare.com',
       'img.4040000.xyz', 
       'cdn.cloudflare.steamstatic.com',
       'telegram.org',
@@ -32,7 +34,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3001', '4040000.xyz','challenges.cloudflare.com’'],
+      allowedOrigins: ['localhost:3001', 'records-git-fix-hydration-errors-mxrain.vercel.app'],
     },
     serverComponentsExternalPackages: ['sharp'],
   },
