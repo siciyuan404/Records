@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { PlusCircle, LayoutDashboard, FileText, List, Sidebar as SidebarIcon, Home, FolderTree, Table, History } from 'lucide-react'
 import { useDispatch } from 'react-redux'
 import { addTab, setActiveTab } from '../../../store/features/tabs/tabsSlice'
@@ -48,7 +49,7 @@ const Sidebar = () => {
     } text-xs`}>
       <div className="flex justify-between items-center p-2 overflow-hidden relative ">
         <Link href="/sys" className="flex items-center">
-          <img src="/favicon.ico" alt="管理后台图标" className="w-5 h-5 flex-shrink-0" />
+          <Image src="/favicon.ico" alt="管理后台图标" width={20} height={20} className="flex-shrink-0" />
           <span className={`ml-2 font-bold whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
             管理后台
           </span>

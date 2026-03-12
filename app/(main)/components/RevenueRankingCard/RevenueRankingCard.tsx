@@ -53,7 +53,7 @@ const RevenueRankingCard: React.FC<RevenueRankingCardProps> = ({ title }) => {
 
     const top: TopItem[] = (data?.top || []).map(item => ({
         ...item,
-        score: (item as any).score || 0,
+        score: item.score || 0,
     }));
     const pageCount = Math.ceil(top.length / itemsPerPage);
 

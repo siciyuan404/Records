@@ -1,27 +1,34 @@
 .resourceList {
   margin: 0 auto;
-  width: 62%;
+  width: 100%;
+  max-width: 1400px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
   padding: 20px;
 }
 
 @media (max-width: 1024px) {
   .resourceList {
-    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    padding: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .resourceList {
-    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .resourceList {
-    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
   }
 }
 
@@ -32,15 +39,16 @@
   justify-content: center;
   height: 300px;
   text-align: center;
+  padding: 20px;
 }
 
 .icon {
   font-size: 48px;
-  color: #888;
+  color: var(--color-gray-400);
   margin-bottom: 16px;
 }
 
 .message {
   font-size: 18px;
-  color: #666;
+  color: var(--color-gray-600);
 }

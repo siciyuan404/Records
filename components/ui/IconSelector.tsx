@@ -1,9 +1,9 @@
 import React from 'react';
-import { useGetIconsQuery } from '@/app/store/api/iconsApi';
+import { useGetAllIconsQuery } from '@/app/store/features/icons/iconsApi';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@/components/ui/select";
 
 const IconSelector: React.FC<{ value: string; onChange: (value: string) => void }> = ({ value, onChange }) => {
-  const { data: icons, isLoading, isError } = useGetIconsQuery();
+  const { data: icons, isLoading, isError } = useGetAllIconsQuery();
 
   if (isLoading) return <div>加载中...</div>;
   if (isError) return <div>加载图标失败</div>;

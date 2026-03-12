@@ -22,6 +22,7 @@ interface ListItem {
   download_count: number;
   download_limit: number;
   other_information: Record<string, unknown>;
+  score?: number;
 }
 
 interface ListResponse {
@@ -35,13 +36,16 @@ interface ListResponse {
 // 创建 listApi
 export const listApi = createApi({
   reducerPath: 'listApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }), // 假设 API 基础 URL 为 '/api'
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
   tagTypes: ['List'],
   endpoints: (builder) => ({
     // 获取所有列表项
     getListItems: builder.query<ListResponse, void>({
       query: () => 'list',
       providesTags: ['List'],
+      extraOptions: {
+        staleTime: 5 * 60 * 1000, // 5分钟内数据视为新鲜
+      },
     }),
 
     // 获取单个列表项

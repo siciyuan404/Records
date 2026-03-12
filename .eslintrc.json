@@ -1,3 +1,25 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@/lib/api"],
+            "importNames": ["fetchResources", "fetchCategories", "fetchList", "fetchResourceInfo"],
+            "message": "请使用 RTK Query hooks (useGetResourcesQuery, useGetListItemsQuery, useGetCategoriesQuery) 替代 lib/api 中的直接函数调用。这些函数已废弃，将在后续版本中删除。"
+          },
+          {
+            "group": ["@/app/hooks/useResources"],
+            "message": "请使用 useGetResourcesQuery 替代 useResources Hook。此 Hook 已废弃，将在后续版本中删除。"
+          },
+          {
+            "group": ["@/hooks/useListData"],
+            "message": "请使用 useGetListItemsQuery 替代 useListData Hook。此 Hook 已废弃，将在后续版本中删除。"
+          }
+        ]
+      }
+    ]
+  }
 }

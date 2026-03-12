@@ -1,24 +1,30 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ArrowLeft, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 interface ExternalLinkRedirectProps {
   href: string;
 }
 
+type MotionComponent = React.ComponentType<any>;
+
+const MotionDiv: MotionComponent = motion.div;
+const MotionSpan: MotionComponent = motion.span;
+
 const ExternalLinkRedirect: React.FC<ExternalLinkRedirectProps> = ({ href }) => {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (typeof window !== 'undefined') { // 添加检查
+      if (typeof window !== 'undefined') {
         window.location.href = href;
       }
     }, 3000);
@@ -40,12 +46,34 @@ const ExternalLinkRedirect: React.FC<ExternalLinkRedirectProps> = ({ href }) => 
     }, 1000);
   };
 
+  const confettiParticles = useMemo(() => 
+    Array.from({ length: 50 }, (_, i) => ({
+      key: i,
+      initial: { 
+        top: "50%", 
+        left: "50%", 
+        scale: 0 
+      },
+      animate: { 
+        top: `${Math.random() * 100}%`, 
+        left: `${Math.random() * 100}%`, 
+        scale: [0, 1, 0] as [number, number, number],
+        opacity: [1, 1, 0] as [number, number, number]
+      },
+      transition: { duration: shouldReduceMotion ? 0 : 1, ease: "easeOut" as const }
+    })), [shouldReduceMotion]
+  );
+
+  const cardTransition = { duration: shouldReduceMotion ? 0 : 0.5 };
+  const progressTransition = { duration: shouldReduceMotion ? 0 : 3, ease: "linear" as const };
+  const fadeTransition = { duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+      <MotionDiv
+        initial={{ scale: shouldReduceMotion ? 1 : 0.9, opacity: shouldReduceMotion ? 1 : 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={cardTransition}
         className="w-full max-w-md px-4"
       >
         <Card className="overflow-hidden shadow-lg border border-gray-200">
@@ -59,25 +87,25 @@ const ExternalLinkRedirect: React.FC<ExternalLinkRedirectProps> = ({ href }) => 
             </p>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">自动跳转倒计时：</span>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
+              <MotionDiv
+                initial={{ opacity: shouldReduceMotion ? 1 : 0, y: shouldReduceMotion ? 0 : 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                transition={fadeTransition}
               >
                 <Loader2 className="animate-spin text-gray-500" />
-              </motion.div>
+              </MotionDiv>
             </div>
-            <motion.div
+            <MotionDiv
               className="h-2 bg-gray-200 rounded-full overflow-hidden"
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 3, ease: "linear" }}
+              initial={{ width: shouldReduceMotion ? 100 : 0 }}
+              animate={{ width: '100%' }}
+              transition={progressTransition}
             >
-              <motion.div
-                className="h-full bg-black"
+              <MotionSpan
+                className="h-full bg-black block will-change-transform"
                 style={{ width: `${progress}%` }}
               />
-            </motion.div>
+            </MotionDiv>
           </CardContent>
           <CardFooter className="flex justify-between mt-4">
             <Button variant="outline" onClick={handleImmediateRedirect} className="flex-1 mr-2 border-black text-black hover:bg-gray-100">
@@ -90,34 +118,25 @@ const ExternalLinkRedirect: React.FC<ExternalLinkRedirectProps> = ({ href }) => 
             </Button>
           </CardFooter>
         </Card>
-      </motion.div>
+      </MotionDiv>
       <AnimatePresence>
         {showConfetti && (
-          <motion.div
+          <MotionDiv
             className="fixed inset-0 pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {[...Array(50)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-gray-800 rounded-full"
-                initial={{ 
-                  top: "50%", 
-                  left: "50%", 
-                  scale: 0 
-                }}
-                animate={{ 
-                  top: `${Math.random() * 100}%`, 
-                  left: `${Math.random() * 100}%`, 
-                  scale: [0, 1, 0],
-                  opacity: [1, 1, 0]
-                }}
-                transition={{ duration: 1, ease: "easeOut" }}
+            {confettiParticles.map((particle) => (
+              <MotionDiv
+                key={particle.key}
+                className="absolute w-2 h-2 bg-gray-800 rounded-full will-change-transform"
+                initial={particle.initial}
+                animate={particle.animate}
+                transition={particle.transition}
               />
             ))}
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </div>

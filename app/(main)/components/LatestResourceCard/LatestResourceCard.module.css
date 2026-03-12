@@ -2,8 +2,13 @@
     padding: 0;
     margin: 0;
     height: 330px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    transition: box-shadow var(--transition-base) var(--ease-out);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
 }
 
 .card h2 {

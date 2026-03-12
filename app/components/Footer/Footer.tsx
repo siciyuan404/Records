@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import styles from './Footer.module.css';
 import { FaFacebook, FaTwitter, FaInstagram, FaWeixin, FaPaperPlane, FaQq } from 'react-icons/fa';
 
@@ -30,7 +31,15 @@ const Footer: React.FC = () => {
               </a>
               <a href={info.qrCode} target="_blank" rel="noopener noreferrer" className={styles.infoCard}>
                 <h3 className={styles.infoCardTitle}>{info.info}</h3>
-                <img className={styles.qrCode} src={info.qrCode} alt="QR Code" />
+                {info.qrCode && (
+                  <Image
+                    className={styles.qrCode}
+                    src={info.qrCode}
+                    alt="QR Code"
+                    width={100}
+                    height={100}
+                  />
+                )}
               </a>
             </div>
           ))}

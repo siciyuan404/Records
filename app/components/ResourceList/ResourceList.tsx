@@ -1,5 +1,5 @@
 import { useGetResourcesQuery } from '@/app/store/api/resourcesApi';
-import ResourceCard from './components/ResourceCard';
+import ResourceCard from '@/components/ui/ResourceCard';
 import styles from './ResourceList.module.css';
 import { FiAlertCircle, FiInbox } from 'react-icons/fi';
 

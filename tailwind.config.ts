@@ -1,69 +1,250 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-    darkMode: ["class"],
-    content: [
+  darkMode: ["class"],
+  content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	extend: {
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-		scrollbar: {
-			hide: 'scrollbar-hide',
-		},
-		opacity: {
-			'0': '0',
-			'100': '1',
-		}
-  	}
+    extend: {
+      colors: {
+        // 语义化颜色
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))'
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))'
+        },
+        primary: {
+          DEFAULT: 'var(--color-primary-500)',
+          foreground: 'hsl(var(--primary-foreground))',
+          50: 'var(--color-primary-50)',
+          100: 'var(--color-primary-100)',
+          200: 'var(--color-primary-200)',
+          300: 'var(--color-primary-300)',
+          400: 'var(--color-primary-400)',
+          500: 'var(--color-primary-500)',
+          600: 'var(--color-primary-600)',
+          700: 'var(--color-primary-700)',
+          800: 'var(--color-primary-800)',
+          900: 'var(--color-primary-900)',
+        },
+        secondary: {
+          DEFAULT: 'var(--color-secondary-500)',
+          foreground: 'hsl(var(--secondary-foreground))',
+          50: 'var(--color-secondary-50)',
+          100: 'var(--color-secondary-100)',
+          200: 'var(--color-secondary-200)',
+          300: 'var(--color-secondary-300)',
+          400: 'var(--color-secondary-400)',
+          500: 'var(--color-secondary-500)',
+          600: 'var(--color-secondary-600)',
+          700: 'var(--color-secondary-700)',
+          800: 'var(--color-secondary-800)',
+          900: 'var(--color-secondary-900)',
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent-500)',
+          foreground: 'hsl(var(--accent-foreground))',
+          50: 'var(--color-accent-50)',
+          100: 'var(--color-accent-100)',
+          200: 'var(--color-accent-200)',
+          300: 'var(--color-accent-300)',
+          400: 'var(--color-accent-400)',
+          500: 'var(--color-accent-500)',
+          600: 'var(--color-accent-600)',
+          700: 'var(--color-accent-700)',
+          800: 'var(--color-accent-800)',
+          900: 'var(--color-accent-900)',
+        },
+        success: {
+          DEFAULT: 'var(--color-success-500)',
+          50: 'var(--color-success-50)',
+          100: 'var(--color-success-100)',
+          200: 'var(--color-success-200)',
+          300: 'var(--color-success-300)',
+          400: 'var(--color-success-400)',
+          500: 'var(--color-success-500)',
+          600: 'var(--color-success-600)',
+          700: 'var(--color-success-700)',
+          800: 'var(--color-success-800)',
+          900: 'var(--color-success-900)',
+        },
+        warning: {
+          DEFAULT: 'var(--color-warning-500)',
+          50: 'var(--color-warning-50)',
+          100: 'var(--color-warning-100)',
+          200: 'var(--color-warning-200)',
+          300: 'var(--color-warning-300)',
+          400: 'var(--color-warning-400)',
+          500: 'var(--color-warning-500)',
+          600: 'var(--color-warning-600)',
+          700: 'var(--color-warning-700)',
+          800: 'var(--color-warning-800)',
+          900: 'var(--color-warning-900)',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))'
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))'
+        },
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        // 灰色系统
+        gray: {
+          50: 'var(--color-gray-50)',
+          100: 'var(--color-gray-100)',
+          200: 'var(--color-gray-200)',
+          300: 'var(--color-gray-300)',
+          400: 'var(--color-gray-400)',
+          500: 'var(--color-gray-500)',
+          600: 'var(--color-gray-600)',
+          700: 'var(--color-gray-700)',
+          800: 'var(--color-gray-800)',
+          900: 'var(--color-gray-900)',
+        },
+        // 图表色彩
+        chart: {
+          '1': 'hsl(var(--chart-1))',
+          '2': 'hsl(var(--chart-2))',
+          '3': 'hsl(var(--chart-3))',
+          '4': 'hsl(var(--chart-4))',
+          '5': 'hsl(var(--chart-5))'
+        }
+      },
+      spacing: {
+        '0': 'var(--spacing-0)',
+        'px': 'var(--spacing-px)',
+        '0.5': 'var(--spacing-0-5)',
+        '1': 'var(--spacing-1)',
+        '1.5': 'var(--spacing-1-5)',
+        '2': 'var(--spacing-2)',
+        '2.5': 'var(--spacing-2-5)',
+        '3': 'var(--spacing-3)',
+        '3.5': 'var(--spacing-3-5)',
+        '4': 'var(--spacing-4)',
+        '5': 'var(--spacing-5)',
+        '6': 'var(--spacing-6)',
+        '7': 'var(--spacing-7)',
+        '8': 'var(--spacing-8)',
+        '9': 'var(--spacing-9)',
+        '10': 'var(--spacing-10)',
+        '11': 'var(--spacing-11)',
+        '12': 'var(--spacing-12)',
+        '14': 'var(--spacing-14)',
+        '16': 'var(--spacing-16)',
+        '20': 'var(--spacing-20)',
+        '24': 'var(--spacing-24)',
+        '32': 'var(--spacing-32)',
+        '40': 'var(--spacing-40)',
+        '48': 'var(--spacing-48)',
+        '56': 'var(--spacing-56)',
+        '64': 'var(--spacing-64)',
+        '72': 'var(--spacing-72)',
+        '80': 'var(--spacing-80)',
+        '96': 'var(--spacing-96)',
+      },
+      borderRadius: {
+        'none': 'var(--radius-none)',
+        'sm': 'var(--radius-sm)',
+        'base': 'var(--radius-base)',
+        'md': 'var(--radius-md)',
+        'lg': 'var(--radius-lg)',
+        'xl': 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        '3xl': 'var(--radius-3xl)',
+        'full': 'var(--radius-full)',
+      },
+      boxShadow: {
+        'xs': 'var(--shadow-xs)',
+        'sm': 'var(--shadow-sm)',
+        'base': 'var(--shadow-base)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
+        '2xl': 'var(--shadow-2xl)',
+        'inner': 'var(--shadow-inner)',
+      },
+      transitionDuration: {
+        'instant': 'var(--transition-instant)',
+        'fast': 'var(--transition-fast)',
+        'base': 'var(--transition-base)',
+        'slow': 'var(--transition-slow)',
+        'slower': 'var(--transition-slower)',
+        'slowest': 'var(--transition-slowest)',
+      },
+      transitionTimingFunction: {
+        'linear': 'var(--ease-linear)',
+        'in': 'var(--ease-in)',
+        'out': 'var(--ease-out)',
+        'in-out': 'var(--ease-in-out)',
+        'bounce': 'var(--ease-bounce)',
+        'elastic': 'var(--ease-elastic)',
+      },
+      fontSize: {
+        'xs': ['var(--font-size-xs)', { lineHeight: 'var(--leading-tight)' }],
+        'sm': ['var(--font-size-sm)', { lineHeight: 'var(--leading-normal)' }],
+        'base': ['var(--font-size-base)', { lineHeight: 'var(--leading-normal)' }],
+        'lg': ['var(--font-size-lg)', { lineHeight: 'var(--leading-normal)' }],
+        'xl': ['var(--font-size-xl)', { lineHeight: 'var(--leading-normal)' }],
+        '2xl': ['var(--font-size-2xl)', { lineHeight: 'var(--leading-tight)' }],
+        '3xl': ['var(--font-size-3xl)', { lineHeight: 'var(--leading-tight)' }],
+        '4xl': ['var(--font-size-4xl)', { lineHeight: 'var(--leading-tight)' }],
+        '5xl': ['var(--font-size-5xl)', { lineHeight: 'var(--leading-tight)' }],
+        '6xl': ['var(--font-size-6xl)', { lineHeight: 'var(--leading-tight)' }],
+        '7xl': ['var(--font-size-7xl)', { lineHeight: 'var(--leading-tight)' }],
+        '8xl': ['var(--font-size-8xl)', { lineHeight: 'var(--leading-tight)' }],
+        '9xl': ['var(--font-size-9xl)', { lineHeight: 'var(--leading-tight)' }],
+      },
+      screens: {
+        'xs': 'var(--breakpoint-xs)',
+        'sm': 'var(--breakpoint-sm)',
+        'md': 'var(--breakpoint-md)',
+        'lg': 'var(--breakpoint-lg)',
+        'xl': 'var(--breakpoint-xl)',
+        '2xl': 'var(--breakpoint-2xl)',
+      },
+      maxWidth: {
+        'xs': 'var(--container-xs)',
+        'sm': 'var(--container-sm)',
+        'md': 'var(--container-md)',
+        'lg': 'var(--container-lg)',
+        'xl': 'var(--container-xl)',
+        '2xl': 'var(--container-2xl)',
+        '3xl': 'var(--container-3xl)',
+        '4xl': 'var(--container-4xl)',
+        '5xl': 'var(--container-5xl)',
+        '6xl': 'var(--container-6xl)',
+        '7xl': 'var(--container-7xl)',
+        'full': 'var(--container-full)',
+      },
+      zIndex: {
+        '0': 'var(--z-0)',
+        '10': 'var(--z-10)',
+        '20': 'var(--z-20)',
+        '30': 'var(--z-30)',
+        '40': 'var(--z-40)',
+        '50': 'var(--z-50)',
+        'auto': 'var(--z-auto)',
+      },
+      scrollbar: {
+        hide: 'scrollbar-hide',
+      },
+      opacity: {
+        '0': '0',
+        '100': '1',
+      }
+    }
   },
   plugins: [
     require("tailwindcss-animate"),

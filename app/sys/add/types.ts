@@ -2,7 +2,7 @@ export interface Resource {
     name: string;
     category: string;
     images: string[];
-    tags: Record<string, any>;
+    tags: string[] | Record<string, string>;
     source_links: Record<string, { link: string; psw: string; size: string }>;
     uploaded: number;
     update_time: number;

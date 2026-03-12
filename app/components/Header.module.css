@@ -1,5 +1,5 @@
 .header {
-    background-color: #f8f9fa;
+    background-color: var(--color-gray-50);
     height: 70px;
     position: fixed;
     top: 0;
@@ -29,13 +29,13 @@
     font-size: 2rem;
     padding-left: 1rem;
     font-weight: 800;
-    color: #2c3e50;
+    color: var(--color-gray-800);
     letter-spacing: -0.5px;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+    transition: color var(--transition-slow) var(--ease-out), text-shadow var(--transition-slow) var(--ease-out);
 }
 
 .enhancedLogo:hover .logoText {
-    color: #3498db;
+    color: var(--color-primary-500);
     text-shadow: 2px 2px 4px rgba(52, 152, 219, 0.3);
 }
 
@@ -58,7 +58,7 @@
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: background-color var(--transition-slow) var(--ease-out);
     white-space: nowrap;
     overflow: visible;
     font-weight: bold; 
@@ -67,8 +67,8 @@
 }
 
 .menuButton:hover {
-    background-color: #f0f0f0;
-    border-radius: 4px;
+    background-color: var(--color-gray-200);
+    border-radius: var(--radius-base);
     font-weight: bold; 
 }
 
@@ -85,12 +85,12 @@
     z-index: 1;
     font-weight: 600;
     font-size: 1.1rem;
-    color: #34495e;
-    transition: color 0.3s ease, transform 0.3s ease;
+    color: var(--color-gray-700);
+    transition: color var(--transition-slow) var(--ease-out), transform var(--transition-slow) var(--ease-out);
 }
 
 .menuButton:hover .menuText {
-    color: #1abc9c;
+    color: var(--color-secondary-500);
     transform: translateY(-2px);
 }
 
@@ -98,7 +98,7 @@
     width: 16px;
     height: 16px;
     margin-left: 0.5rem;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-slow) var(--ease-out);
 }
 
 .menuButton:hover .arrowDown {
@@ -116,11 +116,11 @@
     top: 100%;
     right: 0;
     background-color: white;
-    border-radius: 8px;
+    border-radius: var(--radius-xl);
     min-width: 200px;
     z-index: 1011;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-gray-200);
+    box-shadow: var(--shadow-base);
 }
 
 .subMenu {
@@ -128,11 +128,11 @@
     top: -1px;
     right: 100%;
     background-color: white;
-    border-radius: 8px;
+    border-radius: var(--radius-xl);
     min-width: 200px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-gray-200);
     z-index: 1011;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-base);
 }
 
 .categoryItem {
@@ -146,13 +146,13 @@
     padding: 0.5rem 1rem;
     white-space: nowrap;
     font-size: 1rem;
-    color: #34495e;
-    transition: color 0.3s ease, background-color 0.3s ease, padding-left 0.3s ease;
+    color: var(--color-gray-700);
+    transition: color var(--transition-slow) var(--ease-out), background-color var(--transition-slow) var(--ease-out), padding-left var(--transition-slow) var(--ease-out);
 }
 
 .categoryLink:hover {
-    color: #1abc9c;
-    background-color: #f8f9fa;
+    color: var(--color-secondary-500);
+    background-color: var(--color-gray-50);
     padding-left: 1.5rem;
 }
 
@@ -161,7 +161,7 @@
     height: 16px;
     margin-left: 0.5rem;
     transform: rotate(90deg);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-slow) var(--ease-out);
 }
 
 .subMenu .arrowIcon {
@@ -175,13 +175,8 @@
     order: -1;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 .topLevelMenu, .subMenu {
-    animation: fadeIn 0.3s ease-out;
+    animation: slideInDown var(--transition-slow) var(--ease-out);
 }
 
 @media (max-width: 1200px) {
@@ -194,7 +189,7 @@
     .container {
         max-width: 720px;
     }
-    
+
     .logoText {
         font-size: 1.8rem;
     }
@@ -307,11 +302,11 @@
     .container {
         max-width: 1320px;
     }
-    
+
     .logoText {
         font-size: 2.2rem;
     }
-    
+
     .menuText {
         font-size: 1.2rem;
     }
@@ -322,11 +317,11 @@
     .logoText {
         font-size: 1.1rem;
     }
-    
+
     .menuText {
         font-size: 0.75rem;
     }
-    
+
     .menuButton {
         padding: 0.25rem 0.5rem;
     }
@@ -335,7 +330,7 @@
 .grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: var(--spacing-5);
 }
 
 .grid > * {
@@ -354,15 +349,15 @@
 
 .skeletonContainer {
     display: flex;
-    gap: 1rem;
+    gap: var(--spacing-4);
 }
 
 .errorMessage {
-    color: red;
+    color: var(--color-accent-500);
 }
 
 .enhancedLogo {
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-slow) var(--ease-out);
 }
 
 .enhancedLogo:hover {
@@ -370,8 +365,8 @@
 }
 
 .enhancedMenuButton {
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-base);
+    transition: all var(--transition-slow) var(--ease-out);
     overflow: hidden;
     position: relative;
 }
@@ -386,7 +381,7 @@
     background-color: rgba(236, 240, 241, 0.5);
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    transition: width 0.3s ease, height 0.3s ease;
+    transition: width var(--transition-slow) var(--ease-out), height var(--transition-slow) var(--ease-out);
 }
 
 .enhancedMenuButton:hover::after {

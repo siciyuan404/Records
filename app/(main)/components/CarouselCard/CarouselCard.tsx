@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import styles from './CarouselCard.module.css';
 import { useGetListItemsQuery } from '@/app/store/api/listApi';
 
@@ -58,23 +58,50 @@ const CarouselCard: React.FC<CarouselCardProps> = ({ title }) => {
         setCurrentIndex(index);
     };
 
+    // 键盘导航支持
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'ArrowLeft') {
+            prevSlide();
+        } else if (e.key === 'ArrowRight') {
+            nextSlide();
+        }
+    };
+
     return (
-        <div 
-            className={styles.carouselCard} 
-            style={{ backgroundImage: `url(${carousel[currentIndex] + `?${Date.now()}`})` }} // 使用 images 数组中的第一张图片
+        <div
+            className={styles.carouselCard}
+            style={{ backgroundImage: `url(${carousel[currentIndex]})` }}
+            role="region"
+            aria-label={`${title} 轮播图`}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
         >
             <div className={styles.overlay}>
                 <h2 className={styles.title}>{title}</h2>
                 <div className={styles.navigationWrapper}>
-                    <button onClick={prevSlide} className={`${styles.navButton} ${styles.prevButton}`}>&#9664;</button>
-                    <button onClick={nextSlide} className={`${styles.navButton} ${styles.nextButton}`}>&#9654;</button>
+                    <button
+                        onClick={prevSlide}
+                        className={`${styles.navButton} ${styles.prevButton}`}
+                        aria-label="上一张图片"
+                    >
+                        &#9664;
+                    </button>
+                    <button
+                        onClick={nextSlide}
+                        className={`${styles.navButton} ${styles.nextButton}`}
+                        aria-label="下一张图片"
+                    >
+                        &#9654;
+                    </button>
                 </div>
-                <div className={styles.pageIndicator}>
+                <div className={styles.pageIndicator} role="group" aria-label="轮播图页面指示器">
                     {carousel.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => goToSlide(index)}
                             className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
+                            aria-label={`跳转到第 ${index + 1} 张图片`}
+                            aria-current={index === currentIndex ? 'true' : 'false'}
                         />
                     ))}
                 </div>
@@ -83,4 +110,4 @@ const CarouselCard: React.FC<CarouselCardProps> = ({ title }) => {
     );
 };
 
-export default CarouselCard;
+export default memo(CarouselCard);

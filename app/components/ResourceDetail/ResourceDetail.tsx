@@ -1,9 +1,11 @@
+'use client';
+
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { format, formatDistanceToNow } from 'date-fns'
-import { Star, Download, MessageSquare, ExternalLink, Copy, Eye, Calendar, Info, Link as LinkIcon, FileText, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { format } from 'date-fns'
+import { Star, Download, MessageSquare, ExternalLink, Copy, Eye, Calendar, Info, Link as LinkIcon, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 
-import { motion, AnimatePresence } from 'framer-motion' // 新增：用于动画效果
+import { motion } from 'framer-motion'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,12 +14,11 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip" // 新增：用于提示
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import { Resource } from '@/app/sys/add/types'
-import { fetchResourceInfo } from '@/lib/api'
+import { useGetResourceByIdQuery } from '@/app/store/api/resourcesApi'
 import ResourceSkeleton from './ResourceSkeleton'
-import Link from 'next/link'
 import { cn } from "@/lib/utils"
 
 interface ResourceDetailProps {
@@ -28,48 +29,31 @@ const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.href;
     if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-      if (typeof window !== 'undefined') { // 添加检查
+      if (typeof window !== 'undefined') {
         window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
       }
     } else {
-      if (typeof window !== 'undefined') { // 添加检查
+      if (typeof window !== 'undefined') {
         window.location.href = href;
       }
     }
 };
 
-// 在组件顶部添加一个新的函数来处理toast
 const showToast = (title: string, description: string) => {
   toast({
     title,
     description,
-    className: "sm:max-w-[90vw] md:max-w-[350px]", // 添加这一行
+    className: "sm:max-w-[90vw] md:max-w-[350px]",
   });
 };
 
 export default function ResourceDetail({ uuid }: ResourceDetailProps) {
-    const [resource, setResource] = useState<Resource | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { data: resource, isLoading, isError } = useGetResourceByIdQuery(uuid);
+    
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [isImageModalOpen, setIsImageModalOpen] = useState(false)
-
     const [imageLoaded, setImageLoaded] = useState<boolean[]>([]);
     const [skeletonColors, setSkeletonColors] = useState<string[]>([]);
-
-    useEffect(() => {
-        const fetchResource = async () => {
-            try {
-                const data = await fetchResourceInfo(uuid);
-                setResource(data);
-            } catch (error) {
-                console.error('获取资源详情时出错:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchResource();
-    }, [uuid]);
 
     useEffect(() => {
         if (resource) {
@@ -87,11 +71,11 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
         return color;
     };
 
-    if (loading) {
+    if (isLoading) {
         return <ResourceSkeleton />;
     }
 
-    if (!resource) {
+    if (isError || !resource) {
         return <div className="text-center p-4">资源未找到</div>;
     }
 
@@ -116,20 +100,6 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
             showToast("复制失败", "请手动复制内容");
         }
     }
-
-    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault();
-        const href = e.currentTarget.href;
-        if (href.startsWith('http') && !href.includes(window.location.hostname)) {
-            if (typeof window !== 'undefined') { // 添加检查
-                window.location.href = `/external-redirect?url=${encodeURIComponent(href)}`;
-            }
-        } else {
-            if (typeof window !== 'undefined') { // 添加检查
-                window.location.href = href;
-            }
-        }
-    };
 
     return (
         <motion.div
@@ -232,9 +202,14 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                         transition={{ delay: 0.3 }}
                         className="flex flex-wrap gap-2 mb-4"
                     >
-                        {resource.tags.map((tag: any, index: number) => (
-                            <Badge key={index} variant="secondary" className="animate-pulse">{tag}</Badge>
-                        ))}
+                        {Array.isArray(resource.tags) 
+                            ? resource.tags.map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="animate-pulse">{tag}</Badge>
+                            ))
+                            : Object.values(resource.tags).map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="animate-pulse">{tag}</Badge>
+                            ))
+                        }
                     </motion.div>
 
                     <motion.div
@@ -299,7 +274,7 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                             if (info.psw) {
                                                 copyToClipboard(info.psw, "密码已复制到剪贴板");
                                             }
-                                            if (typeof window !== 'undefined') { // 添加检查
+                                            if (typeof window !== 'undefined') {
                                                 window.location.href = `/external-redirect?url=${encodeURIComponent(info.link)}`;
                                             }
                                         }} 
@@ -315,7 +290,6 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
 
                     <Separator className="my-6" />
 
-                    {/* 资源信息部分 */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -332,19 +306,21 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
                                     <span className="text-gray-400">{format(new Date(resource.update_time), 'yyyy-MM-dd HH:mm:ss')}</span>
                                 </div>
                             </div>
-                            <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
-                                <div className="flex items-center">
-                                    <LinkIcon className="mr-2 text-gray-500" />
-                                    <span className="w-32 inline-block">官方地址：</span>
-                                    <a 
-                                        href={resource.link} 
-                                        onClick={handleLinkClick} 
-                                        className="text-gray-500 hover:text-gray-700 transition-colors duration-200 truncate"
-                                    >
-                                        {resource.link}
-                                    </a>
+                            {resource.link && (
+                                <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
+                                    <div className="flex items-center">
+                                        <LinkIcon className="mr-2 text-gray-500" />
+                                        <span className="w-32 inline-block">官方地址：</span>
+                                        <a 
+                                            href={resource.link} 
+                                            onClick={handleLinkClick} 
+                                            className="text-gray-500 hover:text-gray-700 transition-colors duration-200 truncate"
+                                        >
+                                            {resource.link}
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                             {Object.entries(resource.resource_information || {}).map(([key, value]) => (
                                 <div key={key} className="p-4 bg-gray-100 rounded-lg shadow-sm">
                                     <div className="flex items-center">
@@ -369,7 +345,6 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
 
                     <Separator className="my-6" />
 
-                    {/* 简介部分 */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -383,7 +358,6 @@ export default function ResourceDetail({ uuid }: ResourceDetailProps) {
 
                     <Separator className="my-6" />
 
-                    {/* 图集部分 */}
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}

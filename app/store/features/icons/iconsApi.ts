@@ -17,7 +17,10 @@ export const iconsApi = createApi({
     getIcons: builder.query<IconsResponse, IconsRequest>({
       query: ({ page, pageSize }) => `icons?page=${page}&pageSize=${pageSize}`,
     }),
+    getAllIcons: builder.query<string[], void>({
+      query: () => 'icons',
+    }),
   }),
 })
 
-export const { useGetIconsQuery } = iconsApi
+export const { useGetIconsQuery, useGetAllIconsQuery } = iconsApi

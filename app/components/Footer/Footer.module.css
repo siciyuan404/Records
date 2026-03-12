@@ -26,12 +26,12 @@
 
 .socialIcon {
   font-size: 1.5rem;
-  color: #333;
-  transition: color 0.3s ease;
+  color: var(--color-gray-800);
+  transition: color var(--transition-base) var(--ease-out);
 }
 
 .socialIcon:hover {
-  color: #007bff;
+  color: var(--color-primary);
 }
 
 .infoCard {
@@ -39,20 +39,20 @@
   bottom: 120%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: white;
-  border: 1px solid #e7e7e7;
-  border-radius: 4px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
   padding: 1rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-lg);
   z-index: 10;
   white-space: nowrap;
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0s, opacity 0.3s linear;
+  transition: visibility 0s, opacity var(--transition-base) linear;
   width: 250px;
-  color: #333;
+  color: var(--color-gray-800);
   font-size: 1.1rem;
-  text-align: center;  
+  text-align: center;
 }
 
 .socialIconWrapper:hover .infoCard {
@@ -91,13 +91,14 @@
 }
 
 .link {
-  color: #333;
+  color: var(--color-gray-800);
   text-decoration: none;
-  transition: color 0.3s ease;
+  margin: 0.5rem 0;
+  transition: color var(--transition-base) var(--ease-out);
 }
 
 .link:hover {
-  color: #007bff;
+  color: var(--color-primary);
 }
 
 .infoCardTitle {

@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  # 所有服务现在都使用远程数据库
+  # PostgreSQL: postgresql.6200052.xyz:5432
+  # Redis: redis.6200052.xyz:6379
+  # MinIO: minio.6200052.xyz:444

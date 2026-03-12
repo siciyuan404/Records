@@ -5,14 +5,65 @@ import * as jwt from 'jsonwebtoken';
 // Cookie操作
 import { cookies } from 'next/headers';
 
+// JWT payload 类型定义
+interface TokenPayload {
+  userId?: string;
+  timestamp?: number;
+}
+
+/**
+ * 获取 JWT Secret，如果未配置则抛出错误
+ */
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET 环境变量未配置');
+  }
+  return secret;
+}
+
+/**
+ * 获取 JWT Refresh Secret
+ */
+function getJwtRefreshSecret(): string {
+  const secret = process.env.JWT_REFRESH_SECRET;
+  if (!secret) {
+    throw new Error('JWT_REFRESH_SECRET 环境变量未配置');
+  }
+  return secret;
+}
+
+/**
+ * 获取允许的 CORS 来源
+ */
+function getAllowedOrigin(request: Request): string {
+  const origin = request.headers.get('origin');
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+  // 开发环境允许 localhost
+  if (process.env.NODE_ENV === 'development') {
+    if (origin?.includes('localhost') || origin?.includes('127.0.0.1')) {
+      return origin;
+    }
+  }
+
+  // 检查是否在允许列表中
+  if (origin && allowedOrigins.includes(origin)) {
+    return origin;
+  }
+
+  // 默认返回第一个允许的来源或空字符串
+  return allowedOrigins[0] || '';
+}
+
 /**
  * 生成JWT Token
  * @param payload 负载数据
  * @param expiresIn 过期时间
  * @returns JWT Token字符串
  */
-function generateToken(payload: any, expiresIn: string) {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn }); // 生成Token
+function generateToken(payload: TokenPayload, expiresIn: string) {
+  return jwt.sign(payload, getJwtSecret(), { expiresIn }); // 生成Token
 }
 
 /**
@@ -22,10 +73,9 @@ function generateToken(payload: any, expiresIn: string) {
  */
 function verifyToken(token: string) {
   try {
-    jwt.verify(token, process.env.JWT_SECRET as string);  // 验证Token
+    jwt.verify(token, getJwtSecret());  // 验证Token
     return true;
-  } catch (error) {
-    console.log(error);
+  } catch {
     return false;
   }
 }
@@ -37,7 +87,8 @@ function verifyToken(token: string) {
  */
 export async function GET(request: Request) {
   // 从cookie中获取token
-  const token = cookies().get('token')?.value as string | undefined;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value as string | undefined;
   
   // 检查token是否存在
   if (!token) {
@@ -91,10 +142,11 @@ async function verifyTurnstile(token: string | null): Promise<boolean> {
  * @returns 空响应
  */
 export async function OPTIONS(request: Request) {
+  const allowedOrigin = getAllowedOrigin(request);
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
@@ -144,14 +196,14 @@ export async function POST(request: Request) {
     if (refreshToken) {
       try {
         // 验证refreshToken有效性
-        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string);
+        jwt.verify(refreshToken, getJwtRefreshSecret());
         // 解码refreshToken获取payload
-        const payload = jwt.decode(refreshToken) as any;
+        const payload = jwt.decode(refreshToken) as TokenPayload | null;
         // 生成新的token
-        const newToken = generateToken({ userId: payload.userId }, '7d');
+        const newToken = generateToken({ userId: payload?.userId }, '7d');
         // 返回新token
         return NextResponse.json({ success: true, token: newToken }, { status: 200 });
-      } catch (error) {
+      } catch {
         // refreshToken验证失败
         return NextResponse.json({ error: 'RefreshToken无效' }, { status: 401 });
       }
@@ -171,11 +223,9 @@ export async function POST(request: Request) {
     else if (password) {
       const passwordEnvKey = process.env.AUTH_PASSWORD_ENV_KEY || 'ADMIN_PASSWORD';
       if (password !== process.env[passwordEnvKey]) {
-        console.log('密码验证失败，输入密码:', password, '存储密码:', process.env[passwordEnvKey]);
-        // 密码不匹配
-        return NextResponse.json({ 
-          error: '密码错误',
-          hint: `请检查环境变量${passwordEnvKey}是否包含正确的密码`
+        // 密码不匹配，不泄露环境变量信息
+        return NextResponse.json({
+          error: '密码错误'
         }, { status: 400 });
       }
     } 
@@ -207,8 +257,9 @@ export async function POST(request: Request) {
       // 生成30天有效期的refreshToken
       const refreshToken = generateToken(payload, '30d');
       
+      const cookieStore = await cookies();
       // 设置token cookie
-      cookies().set('token', token, {
+      cookieStore.set('token', token, {
         httpOnly: true,  // 防止XSS攻击
         secure: process.env.NODE_ENV === 'production',  // 生产环境启用HTTPS
         sameSite: 'strict',  // 防止CSRF攻击
@@ -217,7 +268,7 @@ export async function POST(request: Request) {
       });
       
       // 设置refreshToken cookie
-      cookies().set('refreshToken', refreshToken, {
+      cookieStore.set('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -234,14 +285,15 @@ export async function POST(request: Request) {
     const payload = { timestamp: Date.now() };
     const token = generateToken(payload, '7d');
     const refreshToken = generateToken(payload, '30d');
-    cookies().set('token', token, {
+    const cookieStore = await cookies();
+    cookieStore.set('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         path: '/',
         maxAge: 7 * 24 * 60 * 60, // 7天
       });
-      cookies().set('refreshToken', refreshToken, {
+      cookieStore.set('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

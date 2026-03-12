@@ -2,11 +2,16 @@
 
     width: 100%;
     height: 330px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 30px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-xl);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: box-shadow var(--transition-base) var(--ease-out);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
 }
 @media (max-width: 870px) {
     .card {

@@ -1,7 +1,7 @@
-'use client';
-
 import React, { Suspense } from 'react';
 import './globals.css';
+import './design-tokens.css';
+import './animations.css';
 import 'react-tooltip/dist/react-tooltip.css';
 import { Inter } from 'next/font/google';
 import { Providers } from './components/Providers';
@@ -10,8 +10,14 @@ import 'nprogress/nprogress.css';
 import ClientLayout from './ClientLayout';
 import LoadingAnimation from '@/app/components/LoadingAnimation/LoadingAnimation';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'Records',
+  description: 'Resource management application',
+};
 
 export default function RootLayout({
   children,
@@ -31,7 +37,7 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      <body>
+      <body className={inter.className}>
         <GoogleAnalytics />
         <Providers>
           <Suspense fallback={<LoadingAnimation />}>

@@ -1,5 +1,8 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
+import { LucideProps } from 'lucide-react';
+
+type IconName = keyof typeof LucideIcons;
 
 interface IconProps {
   name: string;
@@ -8,11 +11,10 @@ interface IconProps {
 }
 
 const Icon: React.FC<IconProps> = ({ name, size = 24, className }) => {
-  const IconComponent = (LucideIcons as any)[name];
+  const IconComponent = LucideIcons[name as IconName] as React.ComponentType<LucideProps> | undefined;
 
   if (!IconComponent) {
-    console.warn(`未找到名称为 "${name}" 的图标`);
-    return null; // 或者返回一个默认图标
+    return null;
   }
 
   return <IconComponent size={size} className={className} />;

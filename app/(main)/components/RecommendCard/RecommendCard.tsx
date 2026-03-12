@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -131,4 +131,4 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ title, type }) => {
   );
 };
 
-export default RecommendCard;
+export default memo(RecommendCard);

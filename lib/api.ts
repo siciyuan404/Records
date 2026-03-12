@@ -9,8 +9,21 @@ const token = process.env.GITHUB_TOKEN;
 const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents`;
 const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/master`;
 
+// 缓存数据类型
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+// 同步结果类型
+interface SyncResult {
+  file: string;
+  status: 'success' | 'error';
+  message?: string;
+}
+
 // 添加一个简单的内存缓存
-const cache: Record<string, { data: any, timestamp: number }> = {};
+const cache: Record<string, CacheEntry<unknown>> = {};
 const CACHE_DURATION = 60000; // 缓存时间，例如1分钟
 
 
@@ -31,7 +44,7 @@ const CACHE_DURATION = 60000; // 缓存时间，例如1分钟
 // 5. 同步整个资源状态
 // await syncWithGithub('sync', null, null, 整个资源状态对象);
 
-export const syncWithGithub = async (action: string, uuid?: string | null, data?: any, resources?: ResourcesState) => {
+export const syncWithGithub = async (action: string, uuid?: string | null, data?: Resource | Record<string, unknown> | null, resources?: ResourcesState) => {
   if (!owner || !repo || !token) {
     console.error('GitHub配置缺失');
     return;
@@ -96,7 +109,7 @@ export const syncWithGithub = async (action: string, uuid?: string | null, data?
   }
 };
 
-async function syncFile(path: string, content: any, commitMessage: string, results: any[]) {
+async function syncFile(path: string, content: Resource | Record<string, unknown> | ResourcesState, commitMessage: string, results: SyncResult[]) {
   try {
     await axios.put(`${baseUrl}/${path}`, {
       message: commitMessage,
@@ -112,7 +125,7 @@ async function syncFile(path: string, content: any, commitMessage: string, resul
   }
 }
 
-async function deleteFile(path: string, commitMessage: string, results: any[]) {
+async function deleteFile(path: string, commitMessage: string, results: SyncResult[]) {
   try {
     await axios.delete(`${baseUrl}/${path}`, {
       data: {
@@ -144,7 +157,11 @@ function encodeUnicode(str: string) {
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode(parseInt(p1, 16))));
 }
 
-// 修改 fetchCategories 函数
+/**
+ * @deprecated 请使用 RTK Query hooks (useGetCategoriesQuery) 替代
+ * 此函数将在后续版本中删除
+ * @see app/store/api/categoriesApi.ts
+ */
 export async function fetchCategories() {
   const cacheKey = 'categories';
   const now = Date.now();
@@ -161,20 +178,18 @@ export async function fetchCategories() {
   return data;
 }
 
-// 类似地修改 fetchResources 函数
+/**
+ * @deprecated 请使用 RTK Query hooks (useGetResourcesQuery) 替代
+ * 此函数将在后续版本中删除
+ * @see app/store/api/resourcesApi.ts
+ */
 export async function fetchResources() {
-  let fetchResourcesCallCount = 0;
-  fetchResourcesCallCount++;
-  console.log(`fetchResources called ${fetchResourcesCallCount} times`);
-
   const cacheKey = 'resources';
   const now = Date.now();
   if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
-    console.log('Returning cached resources');
     return cache[cacheKey].data;
   }
 
-  console.log('Fetching fresh resources from API');
   const res = await fetch('/api/resources');
   if (!res.ok) {
     throw new Error('Failed to fetch resources');
@@ -184,7 +199,11 @@ export async function fetchResources() {
   return data;
 }
 
-// fetchResourceInfo 函数可以根据 uuid 进行缓存
+/**
+ * @deprecated 请使用 RTK Query hooks (useGetResourceByIdQuery) 替代
+ * 此函数将在后续版本中删除
+ * @see app/store/api/resourcesApi.ts
+ */
 export async function fetchResourceInfo(uuid: string) {
   const cacheKey = `resource_${uuid}`;
   const now = Date.now();
@@ -212,7 +231,11 @@ export async function fetchResourceInfo(uuid: string) {
   }
 };
 
-// list.json
+/**
+ * @deprecated 请使用 RTK Query hooks (useGetListItemsQuery) 替代
+ * 此函数将在后续版本中删除
+ * @see app/store/api/listApi.ts
+ */
 export async function fetchList() {
   const response = await fetch('/api/list', {
     cache: 'no-store',

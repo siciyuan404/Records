@@ -1,0 +1,508 @@
+/**
+ * 统一动画库
+ * 提供一致的动画效果，确保用户体验的流畅性
+ */
+
+/* ========================================
+   基础动画
+   ======================================== */
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 淡出动画 */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 向上滑入 */
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 向下滑入 */
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 向左滑入 */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 向右滑入 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 缩放进入 */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 缩放退出 */
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* 旋转进入 */
+@keyframes rotateIn {
+  from {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 旋转退出 */
+@keyframes rotateOut {
+  from {
+    transform: rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   循环动画
+   ======================================== */
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 旋转动画 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 弹跳动画 */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-10px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* 摇晃动画 */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* 心跳动画 */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 闪烁动画 */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 波纹动画 */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   加载动画
+   ======================================== */
+
+/* 点状加载 */
+@keyframes dots {
+  0%, 20% {
+    content: '.';
+  }
+  40% {
+    content: '..';
+  }
+  60%, 100% {
+    content: '...';
+  }
+}
+
+/* 圆形加载 */
+@keyframes circle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 条形加载 */
+@keyframes bar {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   工具类
+   ======================================== */
+
+/* 淡入效果 */
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) var(--ease-out);
+}
+
+.animate-fade-in-fast {
+  animation: fadeIn var(--transition-fast) var(--ease-out);
+}
+
+.animate-fade-in-slow {
+  animation: fadeIn var(--transition-slow) var(--ease-out);
+}
+
+/* 淡出效果 */
+.animate-fade-out {
+  animation: fadeOut var(--transition-base) var(--ease-in);
+}
+
+.animate-fade-out-fast {
+  animation: fadeOut var(--transition-fast) var(--ease-in);
+}
+
+.animate-fade-out-slow {
+  animation: fadeOut var(--transition-slow) var(--ease-in);
+}
+
+/* 滑入效果 */
+.animate-slide-in-up {
+  animation: slideInUp var(--transition-slow) var(--ease-out);
+}
+
+.animate-slide-in-down {
+  animation: slideInDown var(--transition-slow) var(--ease-out);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--transition-slow) var(--ease-out);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--transition-slow) var(--ease-out);
+}
+
+/* 缩放效果 */
+.animate-scale-in {
+  animation: scaleIn var(--transition-slow) var(--ease-out);
+}
+
+.animate-scale-out {
+  animation: scaleOut var(--transition-slow) var(--ease-in);
+}
+
+/* 旋转效果 */
+.animate-rotate-in {
+  animation: rotateIn var(--transition-slow) var(--ease-out);
+}
+
+.animate-rotate-out {
+  animation: rotateOut var(--transition-slow) var(--ease-in);
+}
+
+/* 循环动画 */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 2s linear infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* 加载动画 */
+.animate-dots {
+  animation: dots 1.5s steps(4) infinite;
+}
+
+.animate-circle {
+  animation: circle 1s linear infinite;
+}
+
+.animate-bar {
+  animation: bar 2s ease-in-out infinite;
+}
+
+/* ========================================
+   过渡效果
+   ======================================== */
+
+/* 基础过渡 */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-base);
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-base);
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-base);
+}
+
+.transition-shadow {
+  transition-property: box-shadow;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-base);
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--transition-base);
+}
+
+/* 快速过渡 */
+.transition-fast {
+  transition-duration: var(--transition-fast);
+}
+
+/* 慢速过渡 */
+.transition-slow {
+  transition-duration: var(--transition-slow);
+}
+
+/* ========================================
+   悬停效果
+   ======================================== */
+
+/* 悬停提升 */
+.hover-lift {
+  transition: transform var(--transition-base) var(--ease-out),
+              box-shadow var(--transition-base) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 悬停缩放 */
+.hover-scale {
+  transition: transform var(--transition-base) var(--ease-out);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* 悬停发光 */
+.hover-glow {
+  transition: box-shadow var(--transition-base) var(--ease-out);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
+}
+
+/* 悬停淡化 */
+.hover-fade {
+  transition: opacity var(--transition-base) var(--ease-out);
+}
+
+.hover-fade:hover {
+  opacity: 0.8;
+}
+
+/* ========================================
+   焦点效果
+   ======================================== */
+
+/* 焦点环 */
+.focus-ring {
+  outline: none;
+  transition: box-shadow var(--transition-fast) var(--ease-out);
+}
+
+.focus-ring:focus {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+/* 焦点提升 */
+.focus-lift {
+  outline: none;
+  transition: transform var(--transition-base) var(--ease-out);
+}
+
+.focus-lift:focus {
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   响应式动画
+   ======================================== */
+
+/* 移动端禁用动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 打印时禁用动画 */
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ========================================
+   性能优化
+   ======================================== */
+
+/* 使用 GPU 加速 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 优化动画性能 */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-transform-opacity {
+  will-change: transform, opacity;
+}
